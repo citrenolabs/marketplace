@@ -1,0 +1,94 @@
+name: Get Device Information
+description: Retrieve detailed device information from Jamf Pro by device ID
+script: GetDeviceInformation.py
+type: enrichment
+integration_identifier: Jamf
+timeout_seconds: 600
+parameters:
+  - name: Device ID
+    type: string
+    description: The ID of the device to retrieve information for
+    is_mandatory: true
+    default_value: ""
+dynamic_results_metadata:
+  - result_name: JsonResult
+    show_result: true
+    result_example: |
+        {
+          "device_id": "1",
+          "device_info": {
+            "id": "1",
+            "udid": "123",
+            "general": {
+              "name": "Boalime",
+              "lastIpAddress": "247.185.82.186",
+              "lastReportedIpV4": "247.185.82.186",
+              "jamfBinaryVersion": "9.27",
+              "platform": "Mac",
+              "assetTag": "304822",
+              "remoteManagement": {
+                "managed": true
+              },
+              "supervised": true,
+              "reportDate": "2018-10-31T18:04:13Z",
+              "lastContactTime": "2018-10-31T18:04:13Z",
+              "lastEnrolledDate": "2018-10-31T18:04:13Z",
+              "site": {
+                "id": "1",
+                "name": "Eau Claire"
+              },
+              "enrolledViaAutomatedDeviceEnrollment": true,
+              "userApprovedMdm": true
+            },
+            "hardware": {
+              "make": "Apple",
+              "model": "13-inch MacBook Pro (Mid 2012)",
+              "modelIdentifier": "MacBookPro9,2",
+              "serialNumber": "C02ZC2QYLVDL",
+              "processorSpeedMhz": 2100,
+              "processorCount": 2,
+              "coreCount": 2,
+              "processorType": "Intel Core i5",
+              "processorArchitecture": "i386",
+              "totalRamMegabytes": 4096,
+              "batteryCapacityPercent": 85,
+              "macAddress": "6A:2C:4B:B7:65:B5"
+            },
+            "operatingSystem": {
+              "name": "Mac OS X",
+              "version": "10.9.5",
+              "build": "13A603",
+              "activeDirectoryStatus": "Not Bound",
+              "fileVault2Status": "ALL_ENCRYPTED"
+            },
+            "userAndLocation": {
+              "username": "Madison Anderson",
+              "realname": "13-inch MacBook",
+              "email": "email@com.pl",
+              "position": "IT Team Lead",
+              "phone": "123-456-789",
+              "departmentId": "1",
+              "buildingId": "1",
+              "room": "5"
+            },
+            "storage": {
+              "bootDriveAvailableSpaceMegabytes": 3072,
+              "disks": [
+                {
+                  "id": "170",
+                  "device": "disk0",
+                  "model": "APPLE HDD TOSHIBA MK5065GSXF",
+                  "sizeMegabytes": 262144,
+                  "smartStatus": "OK"
+                }
+              ]
+            },
+            "security": {
+              "sipStatus": "ENABLED",
+              "gatekeeperStatus": "APP_STORE_AND_IDENTIFIED_DEVELOPERS",
+              "firewallEnabled": true,
+              "activationLockEnabled": true
+            }
+          }
+        }
+supported_entity_types: []
