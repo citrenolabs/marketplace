@@ -2,6 +2,9 @@
 
 `mp` is a command-line tool for working with Google SecOps Marketplace integrations.
 Below are the main commands and their usage.
+The commands can be run using the following:
+- `mp` – primary command-line interface.
+- `wmp` – alternative alias to avoid default alias conflicts that may appear (on Windows only).
 
 ## Basic Commands
 
@@ -10,7 +13,7 @@ Below are the main commands and their usage.
 To see all available commands and general help:
 
 ```bash
-mp --help
+mp --help # or use 'wmp' on Windows
 ```
 
 To get help for a specific command:
@@ -133,11 +136,16 @@ mp dev-env deploy <integration_name>
 
 - `<integration_name>`: The name of the integration directory under `integrations/commercial` or `integrations/third_party`.
 
+Options:
+
+- `--staging`: Uploads the integrations into the staging environment in the playground system.
+
+
 ## Integration Validation Command
 
 ### Validate Integrations
 
-Run pre and post build validation on the integrations:
+Run pre-build and post-build validation on the integrations:
 
 ```bash
 mp validate

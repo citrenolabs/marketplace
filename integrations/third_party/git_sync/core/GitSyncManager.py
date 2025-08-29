@@ -78,7 +78,7 @@ class GitSyncManager:
         self.logger = siemplify.LOGGER
         self._siemplify = siemplify
         self._cache = {}
-        self._wd = tempfile.TemporaryDirectory(dir=siemplify.RUN_FOLDER)
+        self._wd = tempfile.TemporaryDirectory(dir=siemplify.RUN_FOLDER, ignore_cleanup_errors=True)
         self.api = SiemplifyApiClient(
             siemplify.API_ROOT,
             siemplify.api_key,
@@ -99,8 +99,23 @@ class GitSyncManager:
         self.content = GitContentManager(self.git_client, self.api)
 
     def __del__(self):
-        self.logger.info("Cleaning up")
-        self._wd.cleanup()
+        try:
+            if getattr(self, "logger", None):
+                self.logger.info("Cleaning up")
+        except Exception:
+            pass
+        try:
+            git_client = getattr(self, "git_client", None)
+            if git_client is not None:
+                git_client.cleanup()
+        except Exception:
+            pass
+        try:
+            _wd = getattr(self, "_wd", None)
+            if _wd is not None:
+                _wd.cleanup()
+        except Exception:
+            pass
 
     @classmethod
     def from_siemplify_object(
@@ -326,10 +341,12 @@ class GitSyncManager:
             + [ALL_ENVIRONMENTS_IDENTIFIER]
         )
         for p in workflows:
-            if not all(x in environments for x in p.environments):
+            invalid_environments = [x for x in p.environments if x not in environments]
+            if invalid_environments:
                 raise Exception(
-                    f"Playbook {p.name} is assigned to environment that doesn't exist - "
-                    f"{p.environments[0]}",
+                    f"Playbook '{p.name}' is assigned to environment(s) that don't exist: "
+                    f"{', '.join(invalid_environments)}. "
+                    f"Available environments: {', '.join(environments)}"
                 )
 
         # Remove duplicates and split by type
@@ -837,6 +854,7 @@ class WorkflowInstaller:
             step.get("integration"),
             environments=environments,
             display_name=fallback_instance_display_name,
+            consider_404_to_none=True,
         )
         # If the playbook is for one specific environment, choose the first integration instance
         # from that environment. Otherwise, set the step to dynamic mode and set the first shared
@@ -852,6 +870,7 @@ class WorkflowInstaller:
                     step.get("integration"),
                     environments=environments,
                     display_name=instance_display_name,
+                    consider_404_to_none=True,
                 )
                 self._set_step_parameter_by_name(
                     step,

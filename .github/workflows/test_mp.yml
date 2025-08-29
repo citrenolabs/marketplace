@@ -1,20 +1,21 @@
-name: Run mp tests
+name: Run mp Tests
 permissions:
   contents: read
 on:
   push:
     branches:
-      - '**'
+    - '**'
     paths:
-      - 'packages/mp/**'
+    - 'packages/mp/**'
   pull_request:
     branches:
-      - '**'
+    - '**'
     paths:
-      - 'packages/mp/**'
+    - 'packages/mp/**'
 
 jobs:
   test_mp:
+    name: Test mp Package
     runs-on: ubuntu-latest
 
     steps:

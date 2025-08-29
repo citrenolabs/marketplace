@@ -4,13 +4,14 @@ permissions:
 on:
   push:
     branches:
-      - '**'
+    - '**'
   pull_request:
     branches:
-      - '**'
+    - '**'
 
 jobs:
   mp_check:
+    name: Code Linter
     runs-on: ubuntu-latest
 
     steps:

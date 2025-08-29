@@ -1,5 +1,6 @@
 identifier: ChronicleSupportTools
 name: ChronicleSupportTools
-parameters: [ ]
-categories: [ ]
-image_base64: null
+parameters: []
+categories: []
+image_path: resources/image.png
+svg_logo_path: resources/logo.svg

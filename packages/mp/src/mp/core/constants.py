@@ -46,6 +46,8 @@ CONNECTORS_META_SUFFIX: str = ".connectordef"
 JOBS_META_SUFFIX: str = ".jobdef"
 WIDGETS_META_SUFFIX: str = ".json"
 DEF_FILE_SUFFIX: str = ".yaml"
+IMAGE_FILE_SUFFIX: str = ".png"
+SVG_FILE_SUFFIX: str = ".svg"
 
 OUT_ACTION_SCRIPTS_DIR: str = "ActionsScripts"
 OUT_CONNECTOR_SCRIPTS_DIR: str = "ConnectorsScripts"
@@ -65,11 +67,20 @@ JOBS_DIR: str = "jobs"
 WIDGETS_DIR: str = "widgets"
 TESTS_DIR: str = "tests"
 CORE_SCRIPTS_DIR: str = "core"
+RESOURCES_DIR: str = "resources"
 PACKAGE_FILE: str = "__init__.py"
 COMMON_SCRIPTS_DIR: str = "group_modules"
 DEFINITION_FILE: str = f"definition{DEF_FILE_SUFFIX}"
 RELEASE_NOTES_FILE: str = f"release_notes{DEF_FILE_SUFFIX}"
+IMAGE_FILE: str = f"image{IMAGE_FILE_SUFFIX}"
+LOGO_FILE: str = f"logo{SVG_FILE_SUFFIX}"
 SDK_PACKAGE_NAME: str = "soar_sdk"
+SAFE_TO_IGNORE_PACKAGES: tuple[str, ...] = ("win-unicode-console",)
+SAFE_TO_IGNORE_ERROR_MESSAGES: tuple[str, ...] = (
+    "Could not find a version that satisfies the requirement",
+    "No matching distribution found",
+)
+
 
 README_FILE: str = "README.md"
 LOCK_FILE: str = "uv.lock"
@@ -187,10 +198,6 @@ EXCLUDED_NAMES_WHERE_SSL_DEFAULT_IS_NOT_TRUE: set[str] = {
     "Recorded Future - Classic Alerts Connector",
     "SupernaZeroTrust",
 }
-EXCLUDED_INTEGRATIONS_WITHOUT_SVG_IMAGE: set[str] = {
-    "PagerDuty",
-    "ChronicleSupportTools",
-}
 VALID_SSL_PARAM_NAMES: set[str] = {
     "Verify SSL",
     "Verify SSL Certificate",
@@ -290,3 +297,5 @@ PARAM_DISPLAY_NAME_REGEX: str = (
     r"|^logzio_token$"
     r"|^search_term$"
 )
+
+WINDOWS_PLATFORM: str = "win32"
