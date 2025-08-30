@@ -35,7 +35,8 @@ UPDATE_EXTENSION_ATTRIBUTE_SCRIPT_NAME = f"{INTEGRATION_NAME} - Update Extension
 ENRICH_TABLE_NAME = "Jamf Report for: {}"
 
 # HTTP HEADERS
-USER_AGENT = "Jamf%20SOAR%20Integration/1.0.0 SecOps/Chronicle"
+VERSION = "1.0.0"
+USER_AGENT = f"Jamf%20SOAR%20Integration/{VERSION} SecOps/Chronicle"
 
 # ENRICHMENT PREFIX
 ENRICH_PREFIX = "Jamf"

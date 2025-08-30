@@ -2,7 +2,7 @@ import requests
 from urllib.parse import urljoin
 import time
 from .exceptions import JamfError, JamfInvalidParameterError
-from .constants import API_ENDPOINTS
+from .constants import API_ENDPOINTS, USER_AGENT
 
 
 class JamfManager:
@@ -42,7 +42,7 @@ class JamfManager:
         # Set default headers
         self.session.headers.update({
             "Accept": "application/json",
-            "User-Agent": "jamf-google-csoar-v1.0.0",
+            "User-Agent": USER_AGENT,
         })
 
     def _get_full_url(self, endpoint: str) -> str:
@@ -425,7 +425,7 @@ class JamfManager:
         computer_id: str,
         pin: str = None,
         obliteration_behavior: str = None,
-        return_to_service_enabled: bool = False,
+        return_to_service: bool = False,
         mdm_profile_data: str = None,
         wifi_profile_data: str = None,
     ) -> dict:
@@ -436,7 +436,7 @@ class JamfManager:
             computer_id (str): The ID of the computer to erase
             pin (str, optional): 6-digit PIN for the erase command
             obliteration_behavior (str): Obliteration behavior - "Default", "DoNotObliterate", "ObliterateWithWarning", "Always"
-            return_to_service_enabled (bool): Whether to enable return to service after erase
+            return_to_service (bool): Whether to enable return to service after erase
             mdm_profile_data (str, optional): Base64-encoded MDM profile data for return to service
             wifi_profile_data (str, optional): Base64-encoded WiFi profile data for return to service
 
@@ -460,7 +460,7 @@ class JamfManager:
                 pin = pin_str if pin_str else None
 
             # Validate return to service requirements
-            if return_to_service_enabled and not mdm_profile_data and not wifi_profile_data:
+            if return_to_service and not mdm_profile_data and not wifi_profile_data:
                 raise JamfInvalidParameterError(
                     "Return to Service is enabled but no profile data provided. "
                     "At least one of MDM Profile Data or WiFi Profile Data is required."
@@ -493,7 +493,7 @@ class JamfManager:
                 self._log("info", "Erase command will use provided PIN")
 
             # Add return to service settings if enabled
-            if return_to_service_enabled:
+            if return_to_service:
                 return_to_service = {"enabled": True}
 
                 if mdm_profile_data:
@@ -517,7 +517,7 @@ class JamfManager:
                 "Authorization": f"Bearer {self.access_token}",
                 "Accept": "application/json",
                 "Content-Type": "application/json",
-                "User-Agent": self.user_agent,
+                "User-Agent": USER_AGENT,
             }
 
             self._log("info", f"Making ERASE_DEVICE MDM command request to: {url}")

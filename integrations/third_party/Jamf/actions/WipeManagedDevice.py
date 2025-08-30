@@ -78,9 +78,9 @@ def main():
             print_value=True,
             default_value="Default",
         )
-        return_to_service_enabled = extract_action_param(
+        return_to_service = extract_action_param(
             siemplify,
-            param_name="Return to Service Enabled",
+            param_name="Return to Service",
             is_mandatory=True,
             input_type=bool,
             print_value=True,
@@ -117,7 +117,7 @@ def main():
             computer_id=computer_id,
             pin=pin,
             obliteration_behavior=obliteration_behavior,
-            return_to_service_enabled=return_to_service_enabled,
+            return_to_service=return_to_service,
             mdm_profile_data=mdm_profile_data,
             wifi_profile_data=wifi_profile_data,
         )
@@ -127,7 +127,7 @@ def main():
             "computer_id": computer_id,
             "command_type": "ERASE_DEVICE",
             "obliteration_behavior": obliteration_behavior,
-            "return_to_service_enabled": return_to_service_enabled,
+            "return_to_service": return_to_service,
             "pin_used": bool(pin),
             "mdm_profile_provided": bool(mdm_profile_data),
             "wifi_profile_provided": bool(wifi_profile_data),
@@ -150,8 +150,8 @@ def main():
             details.append("with PIN protection")
         if obliteration_behavior != "Default":
             details.append(f"obliteration: {obliteration_behavior}")
-        if return_to_service_enabled:
-            details.append("return to service enabled")
+        if return_to_service:
+            details.append("return to service")
 
         if details:
             output_message += f" ({', '.join(details)})"

@@ -252,16 +252,6 @@ dynamic_results_metadata:
               }
             }
           ]
-        },
-        "summary": {
-          "computers_retrieved": 100,
-          "total_computers": 250,
-          "current_page": 0,
-          "page_size": 100,
-          "has_more_pages": true,
-          "filter_applied": true,
-          "sort_applied": true,
-          "sections_optimized": true
         }
       }
 supported_entity_types: []

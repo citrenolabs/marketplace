@@ -17,6 +17,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! List Computer Groups action for listing computer groups from Jamf Pro.
   integration_version: 1.0
   item_name: List Computer Groups
@@ -26,6 +27,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Get Device Information action for retrieving device information from Jamf Pro.
   integration_version: 1.0
   item_name: Get Device Information
@@ -35,6 +37,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Get Device Group Membership action for retrieving group membership from Jamf Pro.  
   integration_version: 1.0
   item_name: Get Device Group Membership
@@ -43,7 +46,8 @@
   ticket_number: xxx
   new: true
   regressive: false
-  deprecated: false  
+  deprecated: false
+  removed: false
 - description: NEW! Get Computer Inventory action for retrieving computer inventory from Jamf Pro.
   integration_version: 1.0
   item_name: Get Computer Inventory
@@ -53,6 +57,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Assign Device to Group action for assigning devices to groups in Jamf Pro.
   integration_version: 1.0
   item_name: Assign Device to Group
@@ -62,6 +67,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Remote Lock Managed Device action for remotely locking managed devices in Jamf Pro.
   integration_version: 1.0
   item_name: Remote Lock Managed Device
@@ -71,6 +77,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Wipe Managed Device action for wiping managed devices in Jamf Pro.
   integration_version: 1.0
   item_name: Wipe Managed Device
@@ -80,6 +87,7 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
 - description: NEW! Update Extension Attribute action for updating extension attributes in Jamf Pro.
   integration_version: 1.0
   item_name: Update Extension Attribute
@@ -89,3 +97,4 @@
   new: true
   regressive: false
   deprecated: false
+  removed: false
