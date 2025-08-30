@@ -1,5 +1,5 @@
 from constants import VERDICT_MALICIOUS
-from datamodels import Host, Ip, File
+from datamodels import File, Host, Ip
 from exceptions import StairwellError
 
 
@@ -137,7 +137,8 @@ class StairwellParser(object):
 
     def is_entity_file_suspicious(self, report):
         """
-        Returns True if the entity (file) is suspicious based on verdict and verdictMalevalMaliciousProbability fields, else False.
+        Returns True if the entity (file) is suspicious based on verdict and
+        verdictMalevalMaliciousProbability fields, else False.
         """
         verdict = getattr(report, "verdict", None)
         if verdict is not None and verdict.upper() == VERDICT_MALICIOUS:

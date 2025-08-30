@@ -1,9 +1,9 @@
+from constants import INTEGRATION_NAME, PING_SCRIPT_NAME
+from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
-from StairwellManager import StairwellManager
 from SiemplifyUtils import output_handler
-from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED, EXECUTION_STATE_TIMEDOUT
+from StairwellManager import StairwellManager
 from TIPCommon.extraction import extract_configuration_param
-from constants import PING_SCRIPT_NAME, INTEGRATION_NAME
 
 
 @output_handler

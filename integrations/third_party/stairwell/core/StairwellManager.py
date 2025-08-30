@@ -1,11 +1,8 @@
-import requests
 from urllib.parse import urljoin
-from copy import deepcopy
-import json
 
-import datamodels
-from StairwellParser import StairwellParser
+import requests
 from exceptions import StairwellError, StairwellNotFoundError
+from StairwellParser import StairwellParser
 
 DUMMY_HOSTNAME_FOR_TEST = "www.google.com"
 
@@ -65,13 +62,15 @@ class StairwellManager:
         except requests.HTTPError as error:
             try:
                 response.json()
-            except:
+            except (ValueError, TypeError):
                 raise StairwellError(f"{error_msg}: {error} - {response.content}")
 
-            if handle_404 and response.status_code == NOT_FOUNT_ERROR_CODE:
+            if handle_404 and response.status_code == 404:
                 raise StairwellNotFoundError
             if check_message:
-                message = response.json().get("error", {}).get("message", "")
+                error_message = response.json().get("error", {}).get("message", "")
+                if error_message:
+                    raise StairwellError(f"{error_msg}: {error} - {error_message}")
             raise StairwellError(
                 f"{error_msg}: {error} - {response.json().get('error', 'No error message.')}"
             )

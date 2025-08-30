@@ -1,17 +1,16 @@
-from SiemplifyAction import SiemplifyAction
-from StairwellManager import StairwellManager
-from SiemplifyUtils import (
-    output_handler,
-    convert_dict_to_json_result_dict,
-    add_prefix_to_dict,
-    unix_now,
-    convert_unixtime_to_datetime,
-)
-from SiemplifyDataModel import EntityTypes
+from constants import ENRICH_IP_SCRIPT_NAME, ENRICH_TABLE_NAME, INTEGRATION_NAME
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED, EXECUTION_STATE_TIMEDOUT
+from SiemplifyAction import SiemplifyAction
+from SiemplifyDataModel import EntityTypes
+from SiemplifyUtils import (
+    convert_dict_to_json_result_dict,
+    convert_unixtime_to_datetime,
+    output_handler,
+    unix_now,
+)
+from StairwellManager import StairwellManager
 from TIPCommon.extraction import extract_configuration_param
 from TIPCommon.transformation import construct_csv
-from constants import ENRICH_IP_SCRIPT_NAME, INTEGRATION_NAME, ENRICH_TABLE_NAME, VERDICT_MALICIOUS
 from utils import get_entity_original_identifier
 
 
@@ -56,7 +55,8 @@ def main():
             if unix_now() >= siemplify.execution_deadline_unix_time_ms:
                 siemplify.LOGGER.error(
                     f"Timed out. execution deadline "
-                    f"({convert_unixtime_to_datetime(siemplify.execution_deadline_unix_time_ms)}) has passed"
+                    f"({convert_unixtime_to_datetime(siemplify.execution_deadline_unix_time_ms)}) "
+                    f"has passed"
                 )
                 status = EXECUTION_STATE_TIMEDOUT
                 break

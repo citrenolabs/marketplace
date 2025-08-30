@@ -1,6 +1,7 @@
-from constants import ENRICH_PREFIX, VERDICT_MALICIOUS
-from SiemplifyUtils import add_prefix_to_dict
 import json
+
+from constants import ENRICH_PREFIX
+from SiemplifyUtils import add_prefix_to_dict
 
 
 class BaseModel(object):
@@ -46,7 +47,7 @@ class Host(BaseModel):
     def to_insight(self):
         content = f"""
         <b>Hostname Enrichment Result</b><br><br>
-        <table border="1" style='100%'>
+        <table border="1">
         <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td>
         <td style='text-align:'><span style='color:red;'>{self.verdict}</span></td></tr>
         </table>
@@ -90,7 +91,7 @@ class Ip(BaseModel):
     def to_insight(self):
         content = f"""
         <b>IP Enrichment Result</b><br><br>
-        <table border="1" style='100%'>
+        <table border="1">
         <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td><
         td style='text-align: right;'><span style='color:red;'>{self.verdict}</span></td></tr>
         </table>
@@ -289,7 +290,7 @@ class File(BaseModel):
 
         content = f"""
         <b>File Hash Enrichment Result</b><br><br>
-        <table border="1" style='100%'>
+        <table border="1">
         <tr><td style='text-align: left;'><b>Malicious Probability<b></b></td>
         <td style='text-align: right;'><span style='color:red;'>{malicious_prob}</span></td></tr>
         <tr><td style='text-align: left;'><b>Detections Labels</b></td>
