@@ -49,7 +49,7 @@ class Host(BaseModel):
         <b>Hostname Enrichment Result</b><br><br>
         <table border="1">
         <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td>
-        <td style='text-align:'><span style='color:red;'>{self.verdict}</span></td></tr>
+        <td style='text-align:right; width: 30%;'><span style='color:red;'>{self.verdict}</span></td></tr>
         </table>
         <br>
         """
@@ -92,8 +92,8 @@ class Ip(BaseModel):
         content = f"""
         <b>IP Enrichment Result</b><br><br>
         <table border="1">
-        <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td><
-        td style='text-align: right;'><span style='color:red;'>{self.verdict}</span></td></tr>
+        <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td>
+        <td style='text-align: right; width: 30%;'><span style='color:red;'>{self.verdict}</span></td></tr>
         </table>
         <br>
         """
