@@ -15,6 +15,22 @@ parameters:
     description: Number of records per page (default 100, max 2000)
     is_mandatory: false
     default_value: "100"
+  - name: Filter
+    type: ddl
+    description: Filter criteria
+    is_mandatory: true
+    default_value: "general.name"
+    optional_values:
+      - "general.name"
+      - "hardware.serialNumber"
+      - "udid"
+      - "userAndLocation.username"
+      - "userAndLocation.email"
+  - name: Filter Value
+    type: string
+    description: Filter value
+    is_mandatory: true
+    default_value: ""
   - name: Sort
     type: MULTI_CHOICE_PARAMETER
     description: Sort criteria (select multiple fields with direction)
@@ -71,105 +87,6 @@ parameters:
       - "purchasing.lifeExpectancy:desc"
       - "purchasing.warrantyDate:asc"
       - "purchasing.warrantyDate:desc"
-  - name: Filter
-    type: string
-    description: Filter criteria
-    is_mandatory: false
-    default_value: ""
-    # optional_values:
-    #   - 'general.name=="MyComputer"'
-    #   - 'udid=="12345678-1234-1234-1234-123456789012"'
-    #   - 'id=="123456"'
-    #   - "general.assetTag"
-    #   - "general.barcode1"
-    #   - "general.barcode2"
-    #   - "general.enrolledViaAutomatedDeviceEnrollment"
-    #   - "general.lastIpAddress"
-    #   - "general.itunesStoreAccountActive"
-    #   - "general.jamfBinaryVersion"
-    #   - "general.lastContactTime"
-    #   - "general.lastEnrolledDate"
-    #   - "general.lastCloudBackupDate"
-    #   - "general.reportDate"
-    #   - "general.lastReportedIp"
-    #   - "general.lastReportedIpV4"
-    #   - "general.lastReportedIpV6"
-    #   - "general.managementId"
-    #   - "general.remoteManagement.managed"
-    #   - "general.mdmCapable.capable"
-    #   - "general.mdmCertificateExpiration"
-    #   - "general.platform"
-    #   - "general.supervised"
-    #   - "general.userApprovedMdm"
-    #   - "general.declarativeDeviceManagementEnabled"
-    #   - "general.lastLoggedInUsernameSelfService"
-    #   - "general.lastLoggedInUsernameSelfServiceTimestamp"
-    #   - "general.lastLoggedInUsernameBinary"
-    #   - "general.lastLoggedInUsernameBinaryTimestamp"
-    #   - "hardware.bleCapable"
-    #   - "hardware.macAddress"
-    #   - "hardware.make"
-    #   - "hardware.model"
-    #   - "hardware.modelIdentifier"
-    #   - "hardware.serialNumber"
-    #   - "hardware.supportsIosAppInstalls"
-    #   - "hardware.appleSilicon"
-    #   - "operatingSystem.activeDirectoryStatus"
-    #   - "operatingSystem.fileVault2Status"
-    #   - "operatingSystem.build"
-    #   - "operatingSystem.supplementalBuildVersion"
-    #   - "operatingSystem.rapidSecurityResponse"
-    #   - "operatingSystem.name"
-    #   - "operatingSystem.version"
-    #   - "security.activationLockEnabled"
-    #   - "security.recoveryLockEnabled"
-    #   - "security.firewallEnabled"
-    #   - "userAndLocation.buildingId"
-    #   - "userAndLocation.departmentId"
-    #   - "userAndLocation.email"
-    #   - "userAndLocation.realname"
-    #   - "userAndLocation.phone"
-    #   - "userAndLocation.position"
-    #   - "userAndLocation.room"
-    #   - "userAndLocation.username"
-    #   - "diskEncryption.fileVault2Enabled"
-    #   - "purchasing.appleCareId"
-    #   - "purchasing.lifeExpectancy"
-    #   - "purchasing.purchased"
-    #   - "purchasing.leased"
-    #   - "purchasing.vendor"
-    #   - "purchasing.warrantyDate"
-  - name: Section
-    type: MULTI_CHOICE_PARAMETER
-    description: Sections to include in the response (select section for optimized data retrieval)
-    is_mandatory: false
-    default_value: "GENERAL"
-    optional_values:
-      - "GENERAL"
-      - "DISK_ENCRYPTION"
-      - "LOCATION"
-      - "PURCHASING"
-      - "APPLICATIONS"
-      - "STORAGE"
-      - "USER_AND_LOCATION"
-      - "CONFIGURATION_PROFILES"
-      - "PRINTERS"
-      - "SERVICES"
-      - "HARDWARE"
-      - "LOCAL_USER_ACCOUNTS"
-      - "CERTIFICATES"
-      - "ATTACHMENTS"
-      - "PLUGINS"
-      - "PACKAGE_RECEIPTS"
-      - "FONTS"
-      - "SECURITY"
-      - "OPERATING_SYSTEM"
-      - "LICENSED_SOFTWARE"
-      - "IBEACONS"
-      - "SOFTWARE_UPDATES"
-      - "EXTENSION_ATTRIBUTES"
-      - "CONTENT_CACHING"
-      - "GROUP_MEMBERSHIPS"
 dynamic_results_metadata:
   - result_name: JsonResult
     show_result: true

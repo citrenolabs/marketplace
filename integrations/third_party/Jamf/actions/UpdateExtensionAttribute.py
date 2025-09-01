@@ -1,11 +1,10 @@
-from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
-from SiemplifyAction import SiemplifyAction
-from SiemplifyUtils import output_handler
-from TIPCommon.extraction import extract_configuration_param, extract_action_param
-
 from constants import INTEGRATION_NAME, UPDATE_EXTENSION_ATTRIBUTE_SCRIPT_NAME
 from exceptions import JamfError
 from JamfManager import JamfManager
+from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
+from SiemplifyAction import SiemplifyAction
+from SiemplifyUtils import output_handler
+from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
 
 @output_handler
@@ -117,7 +116,8 @@ def main():
         if not selected_attribute:
             available_names = [attr["name"] for attr in extension_attributes_list]
             raise Exception(
-                f"Extension attribute '{extension_attribute_name}' not found. Available attributes: {', '.join(available_names)}"
+                f"Extension attribute '{extension_attribute_name}' not found. "
+                f"Available attributes: {', '.join(available_names)}"
             )
 
         definition_id = selected_attribute["id"]
@@ -163,13 +163,13 @@ def main():
                 computer_details.append(f"Platform: {general['platform']}")
 
             if computer_details:
-                output_message += f"\n\nComputer Details:\n• " + "\n• ".join(computer_details)
+                output_message += "\n\nComputer Details:\n• " + "\n• ".join(computer_details)
 
         # Set JSON result
         siemplify.result.add_result_json(result)
 
         # Set execution state
-        siemplify.LOGGER.info(f"Successfully completed Update Extension Attributes action")
+        siemplify.LOGGER.info("Successfully completed Update Extension Attributes action")
         result_value = True
         status = EXECUTION_STATE_COMPLETED
 

@@ -17,10 +17,40 @@ dynamic_results_metadata:
       {
         "group_id": "1",
         "member_count": 3,
-        "members": [
-            1,
-            2,
-            3
+        "membership_data": {
+          "id": 1,
+          "name": "Group Name",
+          "is_smart": true,
+          "site": {
+            "id": -1,
+            "name": "None"
+          },
+          "criteria": [
+            {
+              "size": 1,
+              "criterion": {
+                "name": "Last Inventory Update",
+                "priority": 0,
+                "and_or": "and",
+                "search_type": "more than x days ago",
+                "value": 7,
+                "opening_paren": false,
+                "closing_paren": false
+              }
+            }
+          ],
+          "computers": [
+            {
+              "size": 1,
+              "computer": {
+                "id": 1,
+                "name": "Joes iMac",
+                "mac_address": "E0:AC:CB:97:36:G4",
+                "alt_mac_address": "E0:AC:CB:67:36:T4",
+                "serial_number": "C02Q7KHTGFWF"
+              }
+            }
           ]
+        }
       }
 supported_entity_types: []

@@ -1,11 +1,10 @@
+from constants import INTEGRATION_NAME, LIST_COMPUTER_GROUPS_SCRIPT_NAME
+from exceptions import JamfError
+from JamfManager import JamfManager
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
 from TIPCommon.extraction import extract_configuration_param
-
-from constants import INTEGRATION_NAME, LIST_COMPUTER_GROUPS_SCRIPT_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
 
 
 @output_handler

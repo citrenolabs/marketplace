@@ -1,8 +1,10 @@
-import requests
-from urllib.parse import urljoin
 import time
-from .exceptions import JamfError, JamfInvalidParameterError
+from urllib.parse import urljoin
+
+import requests
+
 from .constants import API_ENDPOINTS, USER_AGENT
+from .exceptions import JamfError, JamfInvalidParameterError
 
 
 class JamfManager:
@@ -326,7 +328,7 @@ class JamfManager:
 
             # Format the URL with the group ID
             membership_url = self._get_full_url(
-                API_ENDPOINTS["smart_group_membership"].format(id=group_id)
+                API_ENDPOINTS["device_group_membership"].format(id=group_id)
             )
 
             self._log("info", f"Retrieving device group membership from: {membership_url}")
@@ -407,7 +409,8 @@ class JamfManager:
                 total_count = inventory_data.get("totalCount", 0)
                 self._log(
                     "info",
-                    f"Successfully retrieved {len(results)} computers from inventory (total: {total_count})",
+                    f"Successfully retrieved {len(results)} computers from inventory "
+                    f"(total: {total_count})",
                 )
                 return inventory_data
             else:
@@ -997,7 +1000,7 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             elif response.status_code == 400:
-                error_msg = f"Bad request - invalid extension attribute data or format"
+                error_msg = "Bad request - invalid extension attribute data or format"
                 self._log("error", error_msg)
                 self._log("error", f"Response: {response.text}")
                 raise JamfInvalidParameterError(error_msg)

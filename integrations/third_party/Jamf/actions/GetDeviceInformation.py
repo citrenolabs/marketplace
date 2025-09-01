@@ -1,11 +1,10 @@
-from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
-from SiemplifyAction import SiemplifyAction
-from SiemplifyUtils import output_handler
-from TIPCommon.extraction import extract_configuration_param, extract_action_param
-
 from constants import GET_DEVICE_INFORMATION_SCRIPT_NAME, INTEGRATION_NAME
 from exceptions import JamfError, JamfManagerError
 from JamfManager import JamfManager
+from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
+from SiemplifyAction import SiemplifyAction
+from SiemplifyUtils import output_handler
+from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
 
 @output_handler

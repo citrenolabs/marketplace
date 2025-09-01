@@ -1,11 +1,10 @@
+from constants import ASSIGN_TO_GROUP_SCRIPT_NAME, INTEGRATION_NAME
+from exceptions import JamfError
+from JamfManager import JamfManager
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
-from TIPCommon.extraction import extract_configuration_param, extract_action_param
-
-from constants import INTEGRATION_NAME, ASSIGN_TO_GROUP_SCRIPT_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
+from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
 
 @output_handler
@@ -93,7 +92,8 @@ def main():
         # Validate input parameters
         if not computer_ids and not computer_names and not serial_numbers:
             raise Exception(
-                "At least one computer identifier (Computer IDs, Computer Names, or Serial Numbers) must be provided"
+                "At least one computer identifier (Computer IDs, Computer Names, "
+                "or Serial Numbers) must be provided"
             )
 
         # Parse comma-separated lists
@@ -123,7 +123,8 @@ def main():
 
         siemplify.LOGGER.info(f"Starting Assign to Group action - Group ID: {group_id}")
         siemplify.LOGGER.info(
-            f"Computer IDs: {len(computer_ids_list)}, Names: {len(computer_names_list)}, Serials: {len(serial_numbers_list)}"
+            f"Computer IDs: {len(computer_ids_list)}, Names: {len(computer_names_list)}, "
+            f"Serials: {len(serial_numbers_list)}"
         )
 
         # Initialize Jamf Manager
@@ -173,14 +174,14 @@ def main():
             computer_details.extend([f"Serial: {serial}" for serial in serial_numbers_list[:3]])
 
         if computer_details:
-            output_message += f"\n\nComputer Details:\n• " + "\n• ".join(computer_details)
+            output_message += "\n\nComputer Details:\n• " + "\n• ".join(computer_details)
             if total_computers > 3:
                 output_message += f"\n... and {total_computers - 3} more computer(s)"
 
         # Set JSON result
         siemplify.result.add_result_json(result)
 
-        siemplify.LOGGER.info(f"Successfully completed Assign to Group action")
+        siemplify.LOGGER.info("Successfully completed Assign to Group action")
         result_value = True
         status = EXECUTION_STATE_COMPLETED
 

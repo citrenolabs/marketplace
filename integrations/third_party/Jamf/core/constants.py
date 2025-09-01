@@ -12,7 +12,7 @@ API_ENDPOINTS = {
     "computer_groups": "/api/v1/computer-groups",
     "update_computer_group": "/JSSResource/computergroups/id/{id}",
     "computer_inventory_detail": "/api/v1/computers-inventory-detail/{id}",
-    "smart_group_membership": "/api/v2/computer-groups/smart-group-membership/{id}",
+    "device_group_membership": "/JSSResource/computergroups/id/{id}",
     "computers_inventory": "/api/v1/computers-inventory",
     "erase_computer": "/api/v1/computer-inventory/{id}/erase",
     "mdm_commands": "/api/v2/mdm/commands",

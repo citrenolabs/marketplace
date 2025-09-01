@@ -1,11 +1,10 @@
-from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
-from SiemplifyAction import SiemplifyAction
-from SiemplifyUtils import output_handler
-from TIPCommon.extraction import extract_configuration_param, extract_action_param
-
 from constants import GET_DEVICE_GROUP_MEMBERSHIP_SCRIPT_NAME, INTEGRATION_NAME
 from exceptions import JamfError, JamfManagerError
 from JamfManager import JamfManager
+from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
+from SiemplifyAction import SiemplifyAction
+from SiemplifyUtils import output_handler
+from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
 
 @output_handler
@@ -89,19 +88,22 @@ def main():
             )
 
             # Extract member information
-            members = membership_data.get("members", [])
+            members = membership_data.get("computers", [])
             member_count = len(members)
 
             # Prepare comprehensive result
             json_result = {
                 "group_id": group_id,
                 "member_count": member_count,
-                "members": membership_data,
+                "membership_data": membership_data,
             }
 
             siemplify.result.add_result_json(json_result)
 
-            output_message = f"Successfully retrieved device group membership for group ID {group_id}. Found {member_count} members"
+            output_message = (
+                f"Successfully retrieved device group membership for group ID {group_id}. "
+                f"Found {member_count} members"
+            )
             result_value = True
             status = EXECUTION_STATE_COMPLETED
 

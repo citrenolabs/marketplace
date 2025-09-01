@@ -1,11 +1,10 @@
+from constants import GET_COMPUTER_INVENTORY_SCRIPT_NAME, INTEGRATION_NAME
+from exceptions import JamfError
+from JamfManager import JamfManager
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
-from TIPCommon.extraction import extract_configuration_param, extract_action_param
-
-from constants import INTEGRATION_NAME, GET_COMPUTER_INVENTORY_SCRIPT_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
+from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
 
 @output_handler
@@ -79,16 +78,16 @@ def main():
             print_value=True,
             default_value="",
         )
-        filter_criteria = extract_action_param(
+        filter_field = extract_action_param(
             siemplify,
             param_name="Filter",
             is_mandatory=False,
             print_value=True,
             default_value="",
         )
-        section_criteria = extract_action_param(
+        filter_value = extract_action_param(
             siemplify,
-            param_name="Section",
+            param_name="Filter Value",
             is_mandatory=False,
             print_value=True,
             default_value="",
@@ -115,73 +114,79 @@ def main():
             # Check for JSON representations of empty arrays or null values
             stripped_sort = sort_criteria.strip()
             if stripped_sort in ["[]", "[null]", "null", ""]:
-                sort_string = None  # Don't send sort parameter
-                siemplify.LOGGER.info("Sort criteria is empty, omitting sort parameter")
+                sort_string = None
             else:
-                # Try to parse JSON array if it looks like one
-                if stripped_sort.startswith("[") and stripped_sort.endswith("]"):
-                    try:
-                        import json
+                # Try to parse as JSON array first
+                try:
+                    import json
 
-                        parsed = json.loads(stripped_sort)
-                        if isinstance(parsed, list) and len(parsed) > 0:
-                            sort_string = ",".join([str(item) for item in parsed if item])
-                        else:
-                            sort_string = None
-                    except (json.JSONDecodeError, ValueError):
-                        # Treat as single value
-                        sort_string = stripped_sort
-                else:
-                    # Single value
+                    parsed_sort = json.loads(stripped_sort)
+                    if isinstance(parsed_sort, list) and len(parsed_sort) > 0:
+                        sort_string = ",".join([str(item) for item in parsed_sort if item])
+                    else:
+                        sort_string = None
+                except (json.JSONDecodeError, ValueError):
+                    # Treat as single value
                     sort_string = stripped_sort
-                siemplify.LOGGER.info(f"Sort criteria processed: {sort_string}")
+            siemplify.LOGGER.info(f"Sort criteria processed: {sort_string}")
 
+        # Build filter string from field and value
         filter_string = None
-        if filter_criteria and isinstance(filter_criteria, list) and len(filter_criteria) > 0:
-            filter_string = " and ".join(filter_criteria)  # Jamf API uses 'and' to combine filters
-            siemplify.LOGGER.info(f"Filter criteria converted: {filter_string}")
-        elif filter_criteria and isinstance(filter_criteria, str) and filter_criteria.strip():
-            # Check for JSON representations of empty arrays or null values
-            stripped_filter = filter_criteria.strip()
-            if stripped_filter in ["[]", "[null]", "null", ""]:
-                filter_string = None  # Don't send filter parameter
-                siemplify.LOGGER.info("Filter criteria is empty, omitting filter parameter")
-            else:
-                filter_string = stripped_filter
-                siemplify.LOGGER.info(f"Filter criteria processed: {filter_string}")
+        if filter_field and filter_field.strip() and filter_value and filter_value.strip():
+            # Build the filter string in Jamf API format: field=="value"
+            filter_string = f'{filter_field.strip()}=="{filter_value.strip()}"'
+            siemplify.LOGGER.info(f"Filter criteria built: {filter_string}")
+        elif filter_field and filter_field.strip() and not filter_value.strip():
+            siemplify.LOGGER.info("Filter field provided but no filter value - skipping filter")
+        elif filter_value and filter_value.strip() and not filter_field.strip():
+            siemplify.LOGGER.info("Filter value provided but no filter field - skipping filter")
 
-        section_string = None
-        if section_criteria and isinstance(section_criteria, list) and len(section_criteria) > 0:
-            # Convert to uppercase and join with commas
-            section_string = ",".join([str(item).upper() for item in section_criteria if item])
-            siemplify.LOGGER.info(f"Section criteria converted: {section_string}")
-        elif section_criteria and isinstance(section_criteria, str) and section_criteria.strip():
-            # Check for JSON representations of empty arrays or null values
-            stripped_section = section_criteria.strip()
-            if stripped_section in ["[]", "[null]", "null", ""]:
-                section_string = None  # Don't send section parameter
-                siemplify.LOGGER.info("Section criteria is empty, omitting section parameter")
-            else:
-                # Try to parse JSON array if it looks like one
-                if stripped_section.startswith("[") and stripped_section.endswith("]"):
-                    try:
-                        import json
+        # Determine appropriate section based on filter field (if no section explicitly provided)
+        def get_section_for_filter_field(field):
+            """
+            Determine the appropriate section based on the filter field.
 
-                        parsed = json.loads(stripped_section)
-                        if isinstance(parsed, list) and len(parsed) > 0:
-                            # Convert to uppercase and join with commas
-                            section_string = ",".join([
-                                str(item).upper() for item in parsed if item
-                            ])
-                        else:
-                            section_string = None
-                    except (json.JSONDecodeError, ValueError):
-                        # Treat as single value, convert to uppercase
-                        section_string = stripped_section.upper()
-                else:
-                    # Single value, convert to uppercase
-                    section_string = stripped_section.upper()
-                siemplify.LOGGER.info(f"Section criteria processed: {section_string}")
+            Args:
+                field (str): The filter field name
+
+            Returns:
+                str: The corresponding section name in uppercase
+            """
+            if not field:
+                return "GENERAL"  # Default fallback
+
+            field = field.strip().lower()
+
+            # Handle special cases first
+            if field == "udid":
+                return "HARDWARE"
+
+            # Handle prefix-based mapping
+            if field.startswith("general."):
+                return "GENERAL"
+            elif field.startswith("hardware."):
+                return "HARDWARE"
+            elif field.startswith("userandlocation.") or field.startswith("user_and_location."):
+                return "USER_AND_LOCATION"
+            elif field.startswith("operatingsystem.") or field.startswith("operating_system."):
+                return "OPERATING_SYSTEM"
+            elif field.startswith("security."):
+                return "SECURITY"
+            elif field.startswith("purchasing."):
+                return "PURCHASING"
+            elif field.startswith("diskencryption.") or field.startswith("disk_encryption."):
+                return "DISK_ENCRYPTION"
+            else:
+                # Default to GENERAL for unknown fields
+                return "GENERAL"
+
+        # Auto-determine section based on filter field
+        if filter_field and filter_field.strip():
+            auto_section = get_section_for_filter_field(filter_field)
+            section_string = auto_section
+            siemplify.LOGGER.info(
+                f"Auto-determined section based on filter field '{filter_field}': {section_string}"
+            )
 
         siemplify.LOGGER.info(
             f"Starting Get Computer Inventory action - Page: {page}, Page Size: {page_size}"
@@ -233,7 +238,8 @@ def main():
 
             # Create detailed output message
             output_parts = [
-                f"Successfully retrieved {results_count} computers from inventory (total: {total_count})"
+                f"Successfully retrieved {results_count} computers from inventory "
+                f"(total: {total_count})"
             ]
 
             if sort_string:
