@@ -88,7 +88,7 @@ def main():
             )
 
             # Extract member information
-            members = membership_data.get("computers", [])
+            members = membership_data.get("computer_group", {}).get("computers", [])
             member_count = len(members)
 
             # Prepare comprehensive result

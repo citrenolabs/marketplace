@@ -92,6 +92,13 @@ def main():
             print_value=True,
             default_value="",
         )
+        sections = extract_action_param(
+            siemplify,
+            param_name="Section",
+            is_mandatory=False,
+            print_value=True,
+            default_value="GENERAL",
+        )
 
         # Convert and validate parameters
         try:
@@ -168,24 +175,65 @@ def main():
                 return "HARDWARE"
             elif field.startswith("userandlocation.") or field.startswith("user_and_location."):
                 return "USER_AND_LOCATION"
-            elif field.startswith("operatingsystem.") or field.startswith("operating_system."):
-                return "OPERATING_SYSTEM"
-            elif field.startswith("security."):
-                return "SECURITY"
-            elif field.startswith("purchasing."):
-                return "PURCHASING"
-            elif field.startswith("diskencryption.") or field.startswith("disk_encryption."):
-                return "DISK_ENCRYPTION"
             else:
                 # Default to GENERAL for unknown fields
                 return "GENERAL"
 
-        # Auto-determine section based on filter field
+        # Process sections parameter (handle both string and list formats)
+        sections_list = []
+        if sections:
+            if isinstance(sections, list):
+                sections_list = [
+                    section.strip().upper() for section in sections if section and section.strip()
+                ]
+            elif isinstance(sections, str):
+                # Handle comma-separated string or single value
+                sections_str = sections.strip()
+                if sections_str:
+                    # Try to parse as JSON array first
+                    try:
+                        import json
+
+                        parsed_sections = json.loads(sections_str)
+                        if isinstance(parsed_sections, list):
+                            sections_list = [
+                                section.strip().upper()
+                                for section in parsed_sections
+                                if section and section.strip()
+                            ]
+                        else:
+                            sections_list = [sections_str.upper()]
+                    except (json.JSONDecodeError, ValueError):
+                        # Treat as comma-separated string or single value
+                        if "," in sections_str:
+                            sections_list = [
+                                section.strip().upper()
+                                for section in sections_str.split(",")
+                                if section.strip()
+                            ]
+                        else:
+                            sections_list = [sections_str.upper()]
+
+        # Ensure we have at least one section
+        if not sections_list:
+            sections_list = ["GENERAL"]
+
+        # Auto-determine required section based on filter field and ensure it's included
         if filter_field and filter_field.strip():
-            auto_section = get_section_for_filter_field(filter_field)
-            section_string = auto_section
+            required_section = get_section_for_filter_field(filter_field)
+            if required_section not in sections_list:
+                sections_list.append(required_section)
+                siemplify.LOGGER.info(
+                    f"Auto-added required section '{required_section}' for filter field '{filter_field}'"
+                )
+
+        # Convert sections list to comma-separated string for API
+        section_string = ",".join(sections_list) if sections_list else "GENERAL"
+
+        siemplify.LOGGER.info(f"Final sections to request: {section_string}")
+        if filter_field and filter_field.strip():
             siemplify.LOGGER.info(
-                f"Auto-determined section based on filter field '{filter_field}': {section_string}"
+                f"Filter field '{filter_field}' requires section: {get_section_for_filter_field(filter_field)}"
             )
 
         siemplify.LOGGER.info(

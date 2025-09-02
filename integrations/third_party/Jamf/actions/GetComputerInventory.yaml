@@ -31,6 +31,37 @@ parameters:
     description: Filter value
     is_mandatory: true
     default_value: ""
+  - name: Section
+    type: MULTI_CHOICE_PARAMETER
+    description: Sections to include in the response (select section for optimized data retrieval)
+    is_mandatory: false
+    default_value: "GENERAL"
+    optional_values:
+      - "GENERAL"
+      - "DISK_ENCRYPTION"
+      - "LOCATION"
+      - "PURCHASING"
+      - "APPLICATIONS"
+      - "STORAGE"
+      - "USER_AND_LOCATION"
+      - "CONFIGURATION_PROFILES"
+      - "PRINTERS"
+      - "SERVICES"
+      - "HARDWARE"
+      - "LOCAL_USER_ACCOUNTS"
+      - "CERTIFICATES"
+      - "ATTACHMENTS"
+      - "PLUGINS"
+      - "PACKAGE_RECEIPTS"
+      - "FONTS"
+      - "SECURITY"
+      - "OPERATING_SYSTEM"
+      - "LICENSED_SOFTWARE"
+      - "IBEACONS"
+      - "SOFTWARE_UPDATES"
+      - "EXTENSION_ATTRIBUTES"
+      - "CONTENT_CACHING"
+      - "GROUP_MEMBERSHIPS"
   - name: Sort
     type: MULTI_CHOICE_PARAMETER
     description: Sort criteria (select multiple fields with direction)
