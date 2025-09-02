@@ -1,3 +1,4 @@
+from tkinter import ALL
 from constants import GET_COMPUTER_INVENTORY_SCRIPT_NAME, INTEGRATION_NAME
 from exceptions import JamfError
 from JamfManager import JamfManager
@@ -5,6 +6,7 @@ from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
 from TIPCommon.extraction import extract_action_param, extract_configuration_param
+import json
 
 
 @output_handler
@@ -97,7 +99,7 @@ def main():
             param_name="Section",
             is_mandatory=False,
             print_value=True,
-            default_value="GENERAL",
+            default_value="ALL",
         )
 
         # Convert and validate parameters
@@ -125,8 +127,6 @@ def main():
             else:
                 # Try to parse as JSON array first
                 try:
-                    import json
-
                     parsed_sort = json.loads(stripped_sort)
                     if isinstance(parsed_sort, list) and len(parsed_sort) > 0:
                         sort_string = ",".join([str(item) for item in parsed_sort if item])
@@ -179,53 +179,96 @@ def main():
                 # Default to GENERAL for unknown fields
                 return "GENERAL"
 
+        # Define all available sections
+        ALL_SECTIONS = [
+            "GENERAL",
+            "DISK_ENCRYPTION",
+            "PURCHASING",
+            "APPLICATIONS",
+            "STORAGE",
+            "USER_AND_LOCATION",
+            "CONFIGURATION_PROFILES",
+            "PRINTERS",
+            "SERVICES",
+            "HARDWARE",
+            "LOCAL_USER_ACCOUNTS",
+            "CERTIFICATES",
+            "ATTACHMENTS",
+            "PLUGINS",
+            "PACKAGE_RECEIPTS",
+            "FONTS",
+            "SECURITY",
+            "OPERATING_SYSTEM",
+            "LICENSED_SOFTWARE",
+            "IBEACONS",
+            "SOFTWARE_UPDATES",
+            "EXTENSION_ATTRIBUTES",
+            "CONTENT_CACHING",
+            "GROUP_MEMBERSHIPS",
+        ]
+
         # Process sections parameter (handle both string and list formats)
         sections_list = []
+        all_sections_requested = False
         if sections:
             if isinstance(sections, list):
-                sections_list = [
-                    section.strip().upper() for section in sections if section and section.strip()
-                ]
+                # Check if ALL is in the list and filter out "ALL" from final list
+                if any(section.strip().upper() == "ALL" for section in sections if section):
+                    all_sections_requested = True
+                    sections_list = ALL_SECTIONS.copy()
+                else:
+                    sections_list = [
+                        section.strip().upper()
+                        for section in sections
+                        if section and section.strip() and section.strip().upper() != "ALL"
+                    ]
             elif isinstance(sections, str):
                 # Handle comma-separated string or single value
                 sections_str = sections.strip()
                 if sections_str:
-                    # Try to parse as JSON array first
-                    try:
-                        import json
-
-                        parsed_sections = json.loads(sections_str)
-                        if isinstance(parsed_sections, list):
-                            sections_list = [
-                                section.strip().upper()
-                                for section in parsed_sections
-                                if section and section.strip()
-                            ]
-                        else:
-                            sections_list = [sections_str.upper()]
-                    except (json.JSONDecodeError, ValueError):
-                        # Treat as comma-separated string or single value
-                        if "," in sections_str:
-                            sections_list = [
-                                section.strip().upper()
-                                for section in sections_str.split(",")
-                                if section.strip()
-                            ]
-                        else:
-                            sections_list = [sections_str.upper()]
+                    # Handle "ALL" option - include all available sections
+                    if sections_str.upper() == "ALL" or "ALL" in sections_str.upper():
+                        all_sections_requested = True
+                        sections_list = ALL_SECTIONS.copy()
+                    else:
+                        # Try to parse as JSON array first
+                        try:
+                            parsed_sections = json.loads(sections_str)
+                            if isinstance(parsed_sections, list):
+                                sections_list = [
+                                    section.strip().upper()
+                                    for section in parsed_sections
+                                    if section and section.strip()
+                                ]
+                            else:
+                                sections_list = [sections_str.upper()]
+                        except (json.JSONDecodeError, ValueError):
+                            # Treat as comma-separated string or single value
+                            if "," in sections_str:
+                                sections_list = [
+                                    section.strip().upper()
+                                    for section in sections_str.split(",")
+                                    if section.strip()
+                                ]
+                            else:
+                                sections_list = [sections_str.upper()]
 
         # Ensure we have at least one section
         if not sections_list:
             sections_list = ["GENERAL"]
 
         # Auto-determine required section based on filter field and ensure it's included
-        if filter_field and filter_field.strip():
+        if filter_field and filter_field.strip() and not all_sections_requested:
             required_section = get_section_for_filter_field(filter_field)
             if required_section not in sections_list:
                 sections_list.append(required_section)
                 siemplify.LOGGER.info(
                     f"Auto-added required section '{required_section}' for filter field '{filter_field}'"
                 )
+        elif all_sections_requested and filter_field and filter_field.strip():
+            siemplify.LOGGER.info(
+                f"All sections requested - no need to add specific section for filter field '{filter_field}'"
+            )
 
         # Convert sections list to comma-separated string for API
         section_string = ",".join(sections_list) if sections_list else "GENERAL"

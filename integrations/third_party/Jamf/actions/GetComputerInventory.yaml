@@ -35,11 +35,11 @@ parameters:
     type: MULTI_CHOICE_PARAMETER
     description: Sections to include in the response (select section for optimized data retrieval)
     is_mandatory: false
-    default_value: "GENERAL"
+    default_value: "ALL"
     optional_values:
+      - "ALL"
       - "GENERAL"
       - "DISK_ENCRYPTION"
-      - "LOCATION"
       - "PURCHASING"
       - "APPLICATIONS"
       - "STORAGE"
