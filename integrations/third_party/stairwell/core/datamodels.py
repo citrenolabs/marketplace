@@ -51,8 +51,12 @@ class Host(BaseModel):
         content = f"""
         <b>Hostname Enrichment Result</b><br><br>
         <table border="1">
-        <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td>
-        <td style='text-align:right; width: 30%;'><span style='color:red;'>{self.verdict}</span></td></tr>
+        <tr>
+            <td style='text-align: left; width: 30%;'><b>Verdict</b></td>
+            <td style='text-align:right; width: 30%;'>
+                <span style='color:red;'>{self.verdict}</span>
+            </td>
+        </tr>
         </table>
         <br>
         """
@@ -96,7 +100,8 @@ class Ip(BaseModel):
         <b>IP Enrichment Result</b><br><br>
         <table border="1">
         <tr><td style='text-align: left; width: 30%;'><b>Verdict</b></td>
-        <td style='text-align: right; width: 30%;'><span style='color:red;'>{self.verdict}</span></td></tr>
+        <td style='text-align: right; width: 30%;'>
+        <span style='color:red;'>{self.verdict}</span></td></tr>
         </table>
         <br>
         """
@@ -294,14 +299,22 @@ class File(BaseModel):
         content = f"""
         <b>File Hash Enrichment Result</b><br><br>
         <table border="1">
-        <tr><td style='text-align: left;'><b>Malicious Probability<b></b></td>
-        <td style='text-align: right;'><span style='color:red;'>{malicious_prob}</span></td></tr>
-        <tr><td style='text-align: left;'><b>Detections Labels</b></td>
-        <td style='text-align: right;'>{self.verdict_maleval_labels}</td></tr>
-        <tr><td style='text-align: left;'><b>File Mime Type</b></td>
-        <td style='text-align: right;'>{self.file_mime_type}</td></tr>
-        <tr><td style='text-align: left;'><b>First Seen</b></td>
-        <td style='text-align: right;'>{self.sightings_first}</td></tr>
+        <tr>
+            <td style='text-align: left;'><b>Malicious Probability<b></b></td>
+            <td style='text-align: right;'><span style='color:red;'>{malicious_prob}</span></td>
+        </tr>
+        <tr>
+            <td style='text-align: left;'><b>Detections Labels</b></td>
+            <td style='text-align: right;'>{self.verdict_maleval_labels}</td>
+        </tr>
+        <tr>
+            <td style='text-align: left;'><b>File Mime Type</b></td>
+            <td style='text-align: right;'>{self.file_mime_type}</td>
+        </tr>
+        <tr>
+            <td style='text-align: left;'><b>First Seen</b></td>
+            <td style='text-align: right;'>{self.sightings_first}</td>
+        </tr>
         </table>
         <br>
         """
