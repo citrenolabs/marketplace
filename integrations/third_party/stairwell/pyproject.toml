@@ -1,7 +1,7 @@
 [project]
 name = "Stairwell"
 version = "1.0"
-description = "Stairwell"
+description = "Stairwell provides threat intelligence and malware analysis capabilities. This integration enables enrichment of file hashes, IP addresses, and hostnames with Stairwell's threat intelligence data."
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "environmentcommon",
