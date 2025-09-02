@@ -1,7 +1,7 @@
 [project]
 name = "Stairwell"
 version = "1.0"
-description = "Stairwell provides threat intelligence and malware analysis capabilities. This integration enables enrichment of file hashes, IP addresses, and hostnames with Stairwell's threat intelligence data."
+description = "Stairwell provides threat intelligence and malware analysis capabilities. This integration enables enrichment of file hashes, IP addresses, and hostnames with Stairwell's threat intelligence data. In case of any queries, please reach out to zach.daniel@stairwell.com."
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "environmentcommon",
@@ -13,6 +13,7 @@ dependencies = [
 dev = [
     "integration-testing",
     "pytest>=8.4.1",
+    "pytest-json-report",
     "soar-sdk",
 ]
 

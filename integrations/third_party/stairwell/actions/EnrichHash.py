@@ -1,27 +1,35 @@
-from constants import (
-    ENRICH_HOST_SCRIPT_NAME,
+from __future__ import annotations
+
+from soar_sdk.SiemplifyUtils import (
+    unix_now,
+    convert_unixtime_to_datetime,
+    convert_dict_to_json_result_dict,
+    output_handler,
+)
+from soar_sdk.SiemplifyAction import SiemplifyAction
+from soar_sdk.SiemplifyDataModel import EntityTypes
+from soar_sdk.ScriptResult import (
+    EXECUTION_STATE_COMPLETED,
+    EXECUTION_STATE_FAILED,
+    EXECUTION_STATE_TIMEDOUT,
+)
+from TIPCommon.base.action import EntityTypesEnum
+from TIPCommon.extraction import extract_configuration_param
+from TIPCommon.transformation import construct_csv
+
+from ..core.constants import (
+    ENRICH_HASH_SCRIPT_NAME,
     ENRICH_TABLE_NAME,
     INTEGRATION_NAME,
 )
-from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED, EXECUTION_STATE_TIMEDOUT
-from SiemplifyAction import SiemplifyAction
-from SiemplifyDataModel import EntityTypes
-from SiemplifyUtils import (
-    convert_dict_to_json_result_dict,
-    convert_unixtime_to_datetime,
-    output_handler,
-    unix_now,
-)
-from StairwellManager import StairwellManager
-from TIPCommon.extraction import extract_configuration_param
-from TIPCommon.transformation import construct_csv
-from utils import get_entity_original_identifier
+from ..core.StairwellManager import StairwellManager
+from ..core.utils import get_entity_original_identifier
 
 
 @output_handler
 def main():
     siemplify = SiemplifyAction()
-    siemplify.script_name = ENRICH_HOST_SCRIPT_NAME
+    siemplify.script_name = ENRICH_HASH_SCRIPT_NAME
     logger = siemplify.logger
     siemplify.LOGGER.info("----------------- Main - Param Init -----------------")
 
@@ -106,7 +114,7 @@ def main():
             siemplify.result.add_result_json(convert_dict_to_json_result_dict(json_results))
 
     except Exception as e:
-        siemplify.LOGGER.error(f"General error performing action {ENRICH_HOST_SCRIPT_NAME}")
+        siemplify.LOGGER.error(f"General error performing action {ENRICH_HASH_SCRIPT_NAME}")
         siemplify.LOGGER.exception(e)
         result_value = False
         status = EXECUTION_STATE_FAILED

@@ -1,6 +1,8 @@
-from constants import VERDICT_MALICIOUS
-from datamodels import File, Host, Ip
-from exceptions import StairwellError
+from __future__ import annotations
+
+from .constants import VERDICT_MALICIOUS
+from .datamodels import File, Host, Ip
+from .exceptions import StairwellError
 
 
 class StairwellParser(object):

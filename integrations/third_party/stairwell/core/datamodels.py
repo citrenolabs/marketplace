@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import json
 
-from constants import ENRICH_PREFIX
-from SiemplifyUtils import add_prefix_to_dict
+from soar_sdk.SiemplifyUtils import add_prefix_to_dict
+
+from .constants import ENRICH_PREFIX
 
 
 class BaseModel(object):
