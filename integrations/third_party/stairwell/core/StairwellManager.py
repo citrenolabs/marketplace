@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import urljoin
 
 import requests
+
 from .exceptions import StairwellError, StairwellNotFoundError
 from .StairwellParser import StairwellParser
 

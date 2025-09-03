@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from soar_sdk.SiemplifyUtils import (
-    unix_now,
-    convert_unixtime_to_datetime,
-    convert_dict_to_json_result_dict,
-    output_handler,
-)
-from soar_sdk.SiemplifyAction import SiemplifyAction
-from soar_sdk.SiemplifyDataModel import EntityTypes
 from soar_sdk.ScriptResult import (
     EXECUTION_STATE_COMPLETED,
     EXECUTION_STATE_FAILED,
     EXECUTION_STATE_TIMEDOUT,
 )
-from TIPCommon.base.action import EntityTypesEnum
+from soar_sdk.SiemplifyAction import SiemplifyAction
+from soar_sdk.SiemplifyDataModel import EntityTypes
+from soar_sdk.SiemplifyUtils import (
+    convert_dict_to_json_result_dict,
+    convert_unixtime_to_datetime,
+    output_handler,
+    unix_now,
+)
 from TIPCommon.extraction import extract_configuration_param
 from TIPCommon.transformation import construct_csv
 
