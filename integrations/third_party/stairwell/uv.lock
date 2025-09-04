@@ -389,7 +389,7 @@ wheels = [
 
 [[package]]
 name = "integration-testing"
-version = "2.2.10"
+version = "2.2.11"
 source = { directory = "../../../packages/integration_testing" }
 dependencies = [
     { name = "aiohttp" },
@@ -782,7 +782,7 @@ requires-dist = [
 dev = [
     { name = "integration-testing", directory = "../../../packages/integration_testing" },
     { name = "pytest", specifier = ">=8.4.1" },
-    { name = "pytest-json-report" },
+    { name = "pytest-json-report", specifier = ">=1.5.0" },
     { name = "soar-sdk", git = "https://github.com/chronicle/soar-sdk.git" },
 ]
 
