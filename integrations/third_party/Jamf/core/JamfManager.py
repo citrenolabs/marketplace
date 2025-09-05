@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import time
+from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
 import requests
 
 from .constants import API_ENDPOINTS, USER_AGENT
 from .exceptions import JamfError, JamfInvalidParameterError
+
+if TYPE_CHECKING:
+    pass
 
 
 class JamfManager:
@@ -106,11 +112,15 @@ class JamfManager:
 
                 self._log(
                     "info",
-                    f"Successfully obtained access token, expires at epoch: {self.token_expiration_epoch}",
+                    f"Successfully obtained access token, expires at epoch: "
+                    f"{self.token_expiration_epoch}",
                 )
                 return self.access_token
             else:
-                error_msg = f"Failed to get access token. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to get access token. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -256,7 +266,10 @@ class JamfManager:
                 self._log("info", f"Successfully retrieved {len(groups)} computer groups")
                 return groups
             else:
-                error_msg = f"Failed to retrieve computer groups. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to retrieve computer groups. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -300,7 +313,10 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             else:
-                error_msg = f"Failed to retrieve device information. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to retrieve device information. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -346,7 +362,10 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             else:
-                error_msg = f"Failed to retrieve device group membership. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to retrieve device group membership. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -414,7 +433,10 @@ class JamfManager:
                 )
                 return inventory_data
             else:
-                error_msg = f"Failed to retrieve computer inventory. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to retrieve computer inventory. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -438,10 +460,12 @@ class JamfManager:
         Args:
             computer_id (str): The ID of the computer to erase
             pin (str, optional): 6-digit PIN for the erase command
-            obliteration_behavior (str): Obliteration behavior - "Default", "DoNotObliterate", "ObliterateWithWarning", "Always"
+            obliteration_behavior (str): Obliteration behavior - "Default",
+                "DoNotObliterate", "ObliterateWithWarning", "Always"
             return_to_service (bool): Whether to enable return to service after erase
             mdm_profile_data (str, optional): Base64-encoded MDM profile data for return to service
-            wifi_profile_data (str, optional): Base64-encoded WiFi profile data for return to service
+            wifi_profile_data (str, optional): Base64-encoded WiFi profile data
+                for return to service
 
         Returns:
             dict: API response containing erase command status
@@ -551,12 +575,15 @@ class JamfManager:
                         error_msg = "; ".join([
                             err.get("description", str(err)) for err in error_data["errors"]
                         ])
-                except:
+                except Exception:
                     pass
                 self._log("error", f"Bad request: {error_msg}")
                 raise JamfInvalidParameterError(f"Bad request: {error_msg}")
             else:
-                error_msg = f"Failed to erase computer. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to erase computer. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -654,7 +681,7 @@ class JamfManager:
             if response.status_code == 201:
                 try:
                     result = response.json()
-                except:
+                except Exception:
                     # Some endpoints may return empty body on success
                     result = {"status": "success", "message": "Remote lock command initiated"}
                 self.logger.info(
@@ -664,7 +691,7 @@ class JamfManager:
             elif response.status_code == 200:
                 try:
                     result = response.json()
-                except:
+                except Exception:
                     result = {"status": "success", "message": "Remote lock command initiated"}
                 self.logger.info(
                     f"Successfully initiated remote lock command for computer {computer_id}"
@@ -686,7 +713,7 @@ class JamfManager:
                         error_msg = "; ".join([
                             err.get("description", str(err)) for err in error_data["errors"]
                         ])
-                except:
+                except Exception:
                     pass
                 self.logger.error(f"Bad request: {error_msg}")
                 raise Exception(f"Bad request: {error_msg}")
@@ -786,7 +813,10 @@ class JamfManager:
                         "status": "success",
                         "group_id": group_id,
                         "computers_processed": len(computers_xml),
-                        "message": f"Successfully added {len(computers_xml)} computer(s) to group {group_id}",
+                        "message": (
+                            f"Successfully added {len(computers_xml)} computer(s) "
+                            f"to group {group_id}"
+                        ),
                     }
 
                     # Try to extract group name if available
@@ -803,7 +833,10 @@ class JamfManager:
                         "status": "success",
                         "group_id": group_id,
                         "computers_processed": len(computers_xml),
-                        "message": f"Successfully added {len(computers_xml)} computer(s) to group {group_id}",
+                        "message": (
+                            f"Successfully added {len(computers_xml)} computer(s) "
+                            f"to group {group_id}"
+                        ),
                     }
             elif response.status_code == 400:
                 error_msg = "Invalid request parameters or XML format"
@@ -815,7 +848,7 @@ class JamfManager:
                     error_elem = root.find(".//error")
                     if error_elem is not None:
                         error_msg = error_elem.text
-                except:
+                except Exception:
                     pass
                 self.logger.error(f"Bad request: {error_msg}")
                 raise JamfInvalidParameterError(f"Bad request: {error_msg}")
@@ -897,7 +930,10 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             else:
-                error_msg = f"Failed to get device lock PIN. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to get device lock PIN. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -918,13 +954,14 @@ class JamfManager:
         Args:
             computer_id (str): The ID of the computer to update extension attributes for
             extension_attribute (dict): Dictionary with 'definitionId' and 'values' keys
-                                       Example: {"definitionId": "1", "values": ["Value1", "Value2"]}
+                Example: {"definitionId": "1", "values": ["Value1", "Value2"]}
 
         Returns:
             dict: API response containing the updated computer information
 
         Raises:
-            JamfInvalidParameterError: If computer_id is invalid or extension_attribute format is wrong
+            JamfInvalidParameterError: If computer_id is invalid or
+                extension_attribute format is wrong
             JamfError: If the API request fails
         """
         try:
@@ -1013,7 +1050,10 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             else:
-                error_msg = f"Failed to update extension attributes. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to update extension attributes. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
@@ -1063,7 +1103,9 @@ class JamfManager:
                         "id": str(attr.get("id", "")),
                         "name": attr.get("name", "Unknown"),
                         "description": attr.get("description", ""),
-                        "display_name": f"{attr.get('name', 'Unknown')} (ID: {attr.get('id', 'N/A')})",
+                        "display_name": (
+                            f"{attr.get('name', 'Unknown')} (ID: {attr.get('id', 'N/A')})"
+                        ),
                     })
 
                 self._log(
@@ -1084,7 +1126,10 @@ class JamfManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
             else:
-                error_msg = f"Failed to retrieve extension attributes. Status: {response.status_code}, Response: {response.text}"
+                error_msg = (
+                    f"Failed to retrieve extension attributes. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 

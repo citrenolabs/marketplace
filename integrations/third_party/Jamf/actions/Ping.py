@@ -1,14 +1,22 @@
-from constants import INTEGRATION_NAME, PING_SCRIPT_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
 from TIPCommon.extraction import extract_configuration_param
 
+from ..core.constants import INTEGRATION_NAME, PING_SCRIPT_NAME
+from ..core.exceptions import JamfError
+from ..core.JamfManager import JamfManager
+
+if TYPE_CHECKING:
+    from typing import NoReturn
+
 
 @output_handler
-def main():
+def main() -> NoReturn:
     """
     Test connectivity to Jamf Pro API.
 

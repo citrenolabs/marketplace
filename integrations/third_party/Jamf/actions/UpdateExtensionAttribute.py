@@ -1,14 +1,22 @@
-from constants import INTEGRATION_NAME, UPDATE_EXTENSION_ATTRIBUTE_SCRIPT_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
 from TIPCommon.extraction import extract_action_param, extract_configuration_param
 
+from ..core.constants import INTEGRATION_NAME, UPDATE_EXTENSION_ATTRIBUTE_SCRIPT_NAME
+from ..core.exceptions import JamfError
+from ..core.JamfManager import JamfManager
+
+if TYPE_CHECKING:
+    from typing import NoReturn
+
 
 @output_handler
-def main():
+def main() -> NoReturn:
     """
     Update extension attributes for a specific computer in Jamf Pro.
 
@@ -132,7 +140,8 @@ def main():
             f"Starting Update Extension Attributes action - Computer ID: {computer_id}"
         )
         siemplify.LOGGER.info(
-            f"Extension Attribute: {extension_attribute_name} (ID: {definition_id}), Values: {', '.join(values_list)}"
+            f"Extension Attribute: {extension_attribute_name} (ID: {definition_id}), "
+            f"Values: {', '.join(values_list)}"
         )
 
         # Update extension attributes
@@ -148,7 +157,10 @@ def main():
         if len(values_list) > 3:
             values_display += f" (and {len(values_list) - 3} more)"
 
-        output_message = f"Successfully updated extension attribute (Definition ID: {definition_id}) for {computer_name}"
+        output_message = (
+            f"Successfully updated extension attribute (Definition ID: {definition_id}) "
+            f"for {computer_name}"
+        )
         output_message += f"\n\nValues Set: {values_display}"
 
         # Add computer details to output

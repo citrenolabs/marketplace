@@ -1,16 +1,23 @@
-from tkinter import ALL
-from constants import GET_COMPUTER_INVENTORY_SCRIPT_NAME, INTEGRATION_NAME
-from exceptions import JamfError
-from JamfManager import JamfManager
+from __future__ import annotations
+
+import json
+from typing import TYPE_CHECKING
+
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
 from SiemplifyAction import SiemplifyAction
 from SiemplifyUtils import output_handler
 from TIPCommon.extraction import extract_action_param, extract_configuration_param
-import json
+
+from ..core.constants import GET_COMPUTER_INVENTORY_SCRIPT_NAME, INTEGRATION_NAME
+from ..core.exceptions import JamfError
+from ..core.JamfManager import JamfManager
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 @output_handler
-def main():
+def main() -> NoReturn:
     """
     Retrieve computer inventory from Jamf Pro with pagination and filtering support.
 
@@ -263,11 +270,13 @@ def main():
             if required_section not in sections_list:
                 sections_list.append(required_section)
                 siemplify.LOGGER.info(
-                    f"Auto-added required section '{required_section}' for filter field '{filter_field}'"
+                    f"Auto-added required section '{required_section}' "
+                    f"for filter field '{filter_field}'"
                 )
         elif all_sections_requested and filter_field and filter_field.strip():
             siemplify.LOGGER.info(
-                f"All sections requested - no need to add specific section for filter field '{filter_field}'"
+                f"All sections requested - no need to add specific section "
+                f"for filter field '{filter_field}'"
             )
 
         # Convert sections list to comma-separated string for API
@@ -276,7 +285,8 @@ def main():
         siemplify.LOGGER.info(f"Final sections to request: {section_string}")
         if filter_field and filter_field.strip():
             siemplify.LOGGER.info(
-                f"Filter field '{filter_field}' requires section: {get_section_for_filter_field(filter_field)}"
+                f"Filter field '{filter_field}' requires section: "
+                f"{get_section_for_filter_field(filter_field)}"
             )
 
         siemplify.LOGGER.info(
