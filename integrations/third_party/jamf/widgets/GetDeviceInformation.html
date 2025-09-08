@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jamf Device Information</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Use the Inter font family */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark gray background */
+        }
+        
+        /* Tab styling */
+        .tab-button {
+            padding: 12px 24px;
+            border-bottom: 3px solid transparent;
+            color: #9CA3AF;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            color: #D1D5DB;
+            background-color: #374151;
+        }
+        
+        .tab-button.active {
+            color: #3B82F6;
+            border-bottom-color: #3B82F6;
+            background-color: #1F2937;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Style for table headers */
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background-color: #374151;
+            color: #F3F4F6;
+            font-weight: 600;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Style for table cells */
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #374151;
+            color: #D1D5DB;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            word-break: break-word;
+        }
+        
+        /* Alternating row colors for readability */
+        tr:nth-child(even) {
+            background-color: #374151;
+        }
+        
+        /* Key-value pair styling */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        /* Alternating background for info-grid items - accounting for h3 header */
+        .info-grid:nth-child(even) {
+            background-color: #374151;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #F3F4F6;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            color: #D1D5DB;
+            font-size: 0.875rem;
+            word-break: break-word;
+        }
+        
+        /* Status indicators */
+        .status-managed {
+            background-color: #059669;
+            color: #ECFDF5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-unmanaged {
+            background-color: #DC2626;
+            color: #FEE2E2;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-supervised {
+            background-color: #7C3AED;
+            color: #EDE9FE;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-white p-4 sm:p-6 md:p-8">
+
+    <div id="device-container" class="max-w-7xl mx-auto">
+        <!-- Data will be dynamically inserted here -->
+    </div>
+
+    <script>
+        let jsonData = null;
+        if ('[Jamf_Get Device Information_1.is_success]' == 'true') {
+            jsonData = JSON.parse(`[Jamf_Get Device Information_1.JsonResult]`);
+        }
+
+        const container = document.getElementById('device-container');
+
+        /**
+         * Formats a camelCase string to a readable Title Case string.
+         */
+        function formatTitle(text) {
+            if (!text) return 'N/A';
+            return text
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (str) => str.toUpperCase())
+                .replace(/Id/g, 'ID')
+                .replace(/Ip/g, 'IP')
+                .replace(/Mac/g, 'MAC')
+                .replace(/Os/g, 'OS')
+                .replace(/Udid/g, 'UDID');
+        }
+
+        /**
+         * Formats a value for display
+         */
+        function formatValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return 'N/A';
+            }
+            if (typeof value === 'boolean') {
+                return value ? 'Yes' : 'No';
+            }
+            if (typeof value === 'string' && Date.parse(value) && value.includes('T')) {
+                return new Date(value).toLocaleString();
+            }
+            return value;
+        }
+
+        /**
+         * Creates a status badge based on value
+         */
+        function createStatusBadge(key, value) {
+            const lowerKey = key.toLowerCase();
+            const lowerValue = String(value).toLowerCase();
+            
+            if (lowerKey.includes('managed') && lowerValue === 'true') {
+                return `<span class="status-managed">Managed</span>`;
+            } else if (lowerKey.includes('managed') && lowerValue === 'false') {
+                return `<span class="status-unmanaged">Unmanaged</span>`;
+            } else if (lowerKey.includes('supervised') && lowerValue === 'true') {
+                return `<span class="status-supervised">Supervised</span>`;
+            }
+            return formatValue(value);
+        }
+
+        /**
+         * Creates an info grid for key-value pairs
+         */
+        function createInfoGrid(data, excludeKeys = []) {
+            if (!data || typeof data !== 'object') return '';
+            
+            let html = '';
+            Object.entries(data).forEach(([key, value]) => {
+                if (excludeKeys.includes(key) || typeof value === 'object') return;
+                
+                html += `
+                    <div class="info-grid">
+                        <div class="info-label">${formatTitle(key)}</div>
+                        <div class="info-value">${createStatusBadge(key, value)}</div>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        /**
+         * Creates a table for array data
+         */
+        function createTable(data, title) {
+            if (!Array.isArray(data) || data.length === 0) {
+                return `<p class="text-gray-400 italic">No ${title.toLowerCase()} data available.</p>`;
+            }
+
+            const headers = Object.keys(data[0]);
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+            `;
+            
+            headers.forEach(header => {
+                html += `<th>${formatTitle(header)}</th>`;
+            });
+            
+            html += `
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            data.forEach(row => {
+                html += '<tr>';
+                headers.forEach(header => {
+                    html += `<td>${formatValue(row[header])}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        /**
+         * Creates a table for array data with specific fields
+         */
+        function createApplicationsTable(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                return `<p class="text-gray-400 italic">No applications data available.</p>`;
+            }
+
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Version</th>
+                                <th>Path</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            data.forEach(app => {
+                html += `
+                    <tr>
+                        <td>${formatValue(app.name)}</td>
+                        <td>${formatValue(app.version)}</td>
+                        <td>${formatValue(app.path)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        /**
+         * Renders the General tab content
+         */
+        function renderGeneralTab(deviceInfo) {
+            const general = deviceInfo.general || {};
+            const remoteManagement = general.remoteManagement || {};
+            const enrollmentMethod = general.enrollmentMethod || {};
+            const extensionAttributes = general.extensionAttributes || [];
+            
+            return `
+                <div class="space-y-6">
+                    <!-- Basic Computer Information -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Computer Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Computer Name</div>
+                            <div class="info-value">${formatValue(general.name)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Jamf Pro Computer ID</div>
+                            <div class="info-value">${formatValue(deviceInfo.id)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Jamf Pro Management ID</div>
+                            <div class="info-value">${formatValue(general.managementId)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">UDID</div>
+                            <div class="info-value">${formatValue(deviceInfo.udid)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Platform</div>
+                            <div class="info-value">${formatValue(general.platform)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Asset Tag</div>
+                            <div class="info-value">${formatValue(general.assetTag)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Bar Code 1</div>
+                            <div class="info-value">${formatValue(general.barcode1)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Bar Code 2</div>
+                            <div class="info-value">${formatValue(general.barcode2)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Network Information -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Network Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">IP Address</div>
+                            <div class="info-value">${formatValue(general.lastIpAddress)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Reported IPv4 Address</div>
+                            <div class="info-value">${formatValue(general.lastReportedIp || general.lastReportedIpV4)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Reported IPv6 Address</div>
+                            <div class="info-value">${formatValue(general.lastReportedIpV6)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps and Updates -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Last Activity</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Last Inventory Update</div>
+                            <div class="info-value">${formatValue(general.reportDate)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last Check-in</div>
+                            <div class="info-value">${formatValue(general.lastContactTime)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last iCloud Backup</div>
+                            <div class="info-value">${formatValue(general.lastCloudBackupDate)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last Enrollment</div>
+                            <div class="info-value">${formatValue(general.lastEnrolledDate)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">MDM Profile Expiration Date</div>
+                            <div class="info-value">${formatValue(general.mdmProfileExpiration || general.mdmCertificateExpiration)}</div>
+                        </div>
+                    </div>
+
+                    <!-- User Information -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">User Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Last User Logged in to Computer</div>
+                            <div class="info-value">${formatValue(general.lastLoggedInUsernameBinary)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last User Logged in to Computer Timestamp</div>
+                            <div class="info-value">${formatValue(general.lastLoggedInUsernameBinaryTimestamp)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last User Logged in to Self Service</div>
+                            <div class="info-value">${formatValue(general.lastLoggedInUsernameSelfService)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Last User Logged in to Self Service Timestamp</div>
+                            <div class="info-value">${formatValue(general.lastLoggedInUsernameSelfServiceTimestamp)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Management Status -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Management Status</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Managed</div>
+                            <div class="info-value">${createStatusBadge('managed', remoteManagement.managed)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Managed Local Administrator Accounts</div>
+                            <div class="info-value">${formatValue(remoteManagement.managementUsername)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Supervised</div>
+                            <div class="info-value">${createStatusBadge('supervised', general.supervised)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">MDM Capability</div>
+                            <div class="info-value">${formatValue(general.mdmCapable?.capable)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Enrolled via Automated Device Enrollment</div>
+                            <div class="info-value">${formatValue(general.enrolledViaAutomatedDeviceEnrollment)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">User Approved MDM</div>
+                            <div class="info-value">${formatValue(general.userApprovedMdm)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Declarative Device Management</div>
+                            <div class="info-value">${formatValue(general.declarativeDeviceManagementEnabled)}</div>
+                        </div>
+                    </div>
+
+                    <!-- System Information -->
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">System Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Jamf Binary Version</div>
+                            <div class="info-value">${formatValue(general.jamfBinaryVersion)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Bluetooth Low Energy Capability</div>
+                            <div class="info-value">${formatValue(deviceInfo.hardware?.bleCapable)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Supports iOS and iPadOS App Installations</div>
+                            <div class="info-value">${formatValue(deviceInfo.hardware?.supportsIosAppInstalls)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Logged in to the App Store</div>
+                            <div class="info-value">${formatValue(general.itunesStoreAccountActive)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Enrollment Method -->
+                    ${enrollmentMethod && Object.keys(enrollmentMethod).length > 0 ? `
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Enrollment Method</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Enrollment Method ID</div>
+                            <div class="info-value">${formatValue(enrollmentMethod.id)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Object Name</div>
+                            <div class="info-value">${formatValue(enrollmentMethod.objectName)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Object Type</div>
+                            <div class="info-value">${formatValue(enrollmentMethod.objectType)}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Extension Attributes -->
+                    ${extensionAttributes && extensionAttributes.length > 0 ? `
+                    <div class="bg-gray-800 rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Extension Attributes</h3>
+                        ${extensionAttributes.map(attr => `
+                            <div class="info-grid">
+                                <div class="info-label">${formatValue(attr.name)}</div>
+                                <div class="info-value">${Array.isArray(attr.values) ? attr.values.join(', ') : formatValue(attr.values)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the Hardware tab content
+         */
+        function renderHardwareTab(deviceInfo) {
+            const hardware = deviceInfo.hardware || {};
+            
+            return `
+                <div class="space-y-6">
+                    <!-- Basic Hardware Information -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Basic Hardware Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Make</div>
+                            <div class="info-value">${formatValue(hardware.make)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Model</div>
+                            <div class="info-value">${formatValue(hardware.model)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Model Identifier</div>
+                            <div class="info-value">${formatValue(hardware.modelIdentifier)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">UDID</div>
+                            <div class="info-value">${formatValue(deviceInfo.udid)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Serial Number</div>
+                            <div class="info-value">${formatValue(hardware.serialNumber)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Apple Silicon</div>
+                            <div class="info-value">${formatValue(hardware.appleSilicon)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Processor Information -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Processor Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Processor Type</div>
+                            <div class="info-value">${formatValue(hardware.processorType)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Processor Speed</div>
+                            <div class="info-value">${hardware.processorSpeedMhz ? `${hardware.processorSpeedMhz} MHz` : formatValue(hardware.processorSpeed)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Number of Processors</div>
+                            <div class="info-value">${formatValue(hardware.processorCount || hardware.numberOfProcessors)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Total Number of Cores</div>
+                            <div class="info-value">${formatValue(hardware.coreCount || hardware.numberOfCores)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Architecture Type</div>
+                            <div class="info-value">${formatValue(hardware.processorArchitecture)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Bus Speed</div>
+                            <div class="info-value">${hardware.busSpeedMhz ? `${hardware.busSpeedMhz} MHz` : formatValue(hardware.busSpeed)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Cache Size</div>
+                            <div class="info-value">${hardware.cacheSizeKilobytes ? `${hardware.cacheSizeKilobytes} KB` : formatValue(hardware.cacheSize)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Network Information -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Network Adapters</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Primary Network Adapter Type</div>
+                            <div class="info-value">${formatValue(hardware.networkAdapterType)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Primary MAC Address</div>
+                            <div class="info-value">${formatValue(hardware.macAddress)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Secondary Network Adapter Type</div>
+                            <div class="info-value">${formatValue(hardware.altNetworkAdapterType)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Secondary MAC Address</div>
+                            <div class="info-value">${formatValue(hardware.altMacAddress)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">NIC Speed</div>
+                            <div class="info-value">${formatValue(hardware.nicSpeed)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Memory Information -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Memory Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Total RAM</div>
+                            <div class="info-value">${hardware.totalRamMegabytes ? `${hardware.totalRamMegabytes} MB` : formatValue(hardware.totalRam)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Available RAM Slots</div>
+                            <div class="info-value">${formatValue(hardware.openRamSlots || hardware.availableRamSlots)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Power and Battery -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Power and Battery</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Battery Capacity</div>
+                            <div class="info-value">${hardware.batteryCapacityPercent ? `${hardware.batteryCapacityPercent}%` : formatValue(hardware.batteryCapacity)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Battery Health</div>
+                            <div class="info-value">${formatValue(hardware.batteryHealth)}</div>
+                        </div>
+                    </div>
+
+                    <!-- System Components -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">System Components</h3>
+                        <div class="info-grid">
+                            <div class="info-label">SMC Version</div>
+                            <div class="info-value">${formatValue(hardware.smcVersion)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Optical Drive</div>
+                            <div class="info-value">${formatValue(hardware.opticalDrive)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Boot ROM</div>
+                            <div class="info-value">${formatValue(hardware.bootRom)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the User & Location tab content
+         */
+        function renderUserLocationTab(deviceInfo) {
+            const userLocation = deviceInfo.userAndLocation || {};
+            
+            return `
+                <div class="space-y-6">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">User Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Username</div>
+                            <div class="info-value">${formatValue(userLocation.username)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">${formatValue(userLocation.realname)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">${formatValue(userLocation.email)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">${formatValue(userLocation.phone)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Position</div>
+                            <div class="info-value">${formatValue(userLocation.position)}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Location Information</h3>
+                        <div class="info-grid">
+                            <div class="info-label">Department</div>
+                            <div class="info-value">${formatValue(userLocation.departmentId)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Building</div>
+                            <div class="info-value">${formatValue(userLocation.buildingId)}</div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-label">Room</div>
+                            <div class="info-value">${formatValue(userLocation.room)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the Applications tab content
+         */
+        function renderApplicationsTab(deviceInfo) {
+            const applications = deviceInfo.applications || [];
+            
+            return `
+                <div class="space-y-6">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Installed Applications</h3>
+                        ${createApplicationsTable(applications)}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the complete device information widget
+         */
+        function renderDeviceWidget(data) {
+            const deviceInfo = data.device_info || {};
+            const deviceId = data.device_id || 'Unknown';
+            const deviceName = deviceInfo.general?.name || `Device ${deviceId}`;
+            const managementId = deviceInfo.general?.managementId || 'Unknown';
+            
+            return `
+                <div class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="p-4 sm:p-6 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
+                        <div>
+                            <h1 class="text-xl font-bold text-white">${deviceName}</h1>
+                            <p class="text-gray-400 text-sm">Management ID: ${managementId}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-400">Platform</div>
+                            <div class="text-lg font-semibold text-blue-400">${deviceInfo.general?.platform || 'Unknown'}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Navigation -->
+                    <div class="bg-gray-800 border-b border-gray-700">
+                        <div class="flex space-x-0">
+                            <button class="tab-button active" onclick="switchTab(event, 'general')">General</button>
+                            <button class="tab-button" onclick="switchTab(event, 'hardware')">Hardware</button>
+                            <button class="tab-button" onclick="switchTab(event, 'user-location')">User & Location</button>
+                            <button class="tab-button" onclick="switchTab(event, 'applications')">Applications</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div class="p-4 sm:p-6">
+                        <div id="general" class="tab-content active">
+                            ${renderGeneralTab(deviceInfo)}
+                        </div>
+                        <div id="hardware" class="tab-content">
+                            ${renderHardwareTab(deviceInfo)}
+                        </div>
+                        <div id="user-location" class="tab-content">
+                            ${renderUserLocationTab(deviceInfo)}
+                        </div>
+                        <div id="applications" class="tab-content">
+                            ${renderApplicationsTab(deviceInfo)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Switches between tabs
+         */
+        function switchTab(event, tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Make switchTab function globally available
+        window.switchTab = switchTab;
+
+        // Initial render of the data
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!jsonData) {
+                container.innerHTML = '<p class="text-center text-gray-400">No device information to display.</p>';
+                return;
+            }
+
+            container.innerHTML = renderDeviceWidget(jsonData);
+        });
+
+    </script>
+</body>
+</html>
