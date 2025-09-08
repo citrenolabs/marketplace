@@ -2,7 +2,7 @@
   integration_version: 1.0
   item_name: Jamf
   item_type: Integration
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -12,7 +12,7 @@
   integration_version: 1.0
   item_name: Ping
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -22,7 +22,7 @@
   integration_version: 1.0
   item_name: List Computer Groups
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -32,7 +32,7 @@
   integration_version: 1.0
   item_name: Get Device Information
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -42,7 +42,7 @@
   integration_version: 1.0
   item_name: Get Device Group Membership
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -52,7 +52,7 @@
   integration_version: 1.0
   item_name: Get Computer Inventory
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -62,7 +62,7 @@
   integration_version: 1.0
   item_name: Assign Device to Group
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -72,7 +72,7 @@
   integration_version: 1.0
   item_name: Remote Lock Managed Device
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -82,7 +82,7 @@
   integration_version: 1.0
   item_name: Wipe Managed Device
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
@@ -92,7 +92,7 @@
   integration_version: 1.0
   item_name: Update Extension Attribute
   item_type: Action
-  publish_time: '2025-08-04'
+  publish_time: '2025-09-08'
   ticket_number: xxx
   new: true
   regressive: false
