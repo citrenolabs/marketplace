@@ -25,35 +25,15 @@ parameters:
     description: Comma-separated list of serial numbers to add (e.g., "ABC123,DEF456")
     is_mandatory: false
     default_value: ""
-examples:
-  - example_1:
-      name: Add computers by ID to group
-      description: Add multiple computers to a group using their computer IDs
-      parameters:
-        - name: Group ID
-          value: "123"
-        - name: Computer IDs
-          value: "456,789,101"
-      expected_result: Adds computers with IDs 456, 789, and 101 to group 123
-  - example_2:
-      name: Add computers by serial number to group
-      description: Add computers to a group using their serial numbers
-      parameters:
-        - name: Group ID
-          value: "789"
-        - name: Serial Numbers
-          value: "C02ABC123DEF,C02XYZ456GHI"
-      expected_result: Adds computers with specified serial numbers to group 789
-  - example_2:
-      name: Mixed identifier assignment
-      description: Add computers using multiple identifier types
-      parameters:
-        - name: Group ID
-          value: "101"
-        - name: Computer IDs
-          value: "123,456"
-        - name: Computer Names
-          value: "Test-Mac"
-        - name: Serial Numbers
-          value: "C02TEST123"
-      expected_result: Adds all specified computers (by ID, name, and serial) to group 101
+dynamic_results_metadata:
+  - result_name: JsonResult
+    show_result: true
+    result_example: |
+      {
+          "status": "success",
+          "group_id": "1",
+          "computers_processed": 2,
+          "message": "Successfully added 2 computer(s) to group 1",
+          "group_name": "Marketing Laptops"
+      }
+
