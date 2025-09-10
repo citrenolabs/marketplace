@@ -1,7 +1,7 @@
 [project]
 name = "Jamf"
 version = "1.0"
-description = "Jamf"
+description = "Jamf Pro integration for computer management and endpoint security. This integration enables device management, inventory retrieval, security actions, and configuration management for macOS computers managed through Jamf Pro"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "environmentcommon",
