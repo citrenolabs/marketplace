@@ -14,28 +14,53 @@
         /* Use the Inter font family */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark gray background */
+            transition: all 0.3s ease;
+        }
+        
+        /* Default light theme variables */
+        :root {
+            --widget-bg-color: #ffffff;
+            --widget-foreground-color: #020817;
+            --widget-card-color: #ffffff;
+            --widget-card-foreground-color: #020817;
+            --widget-primary-color: #020817;
+            --widget-primary-foreground-color: #f8fafc;
+            --widget-secondary-color: #f1f5f9;
+            --widget-secondary-foreground-color: #0f172a;
+            --widget-muted-color: #f1f5f9;
+            --widget-muted-foreground-color: #64748b;
+            --widget-accent-color: #3b82f6;
+            --widget-accent-foreground-color: #ffffff;
+            --widget-border-color: #e2e8f0;
+            --widget-input-color: #e2e8f0;
+            --widget-success-color: #059669;
+            --widget-success-foreground-color: #ecfdf5;
+            --widget-error-color: #dc2626;
+            --widget-error-foreground-color: #fee2e2;
+            --widget-warning-color: #7c3aed;
+            --widget-warning-foreground-color: #ede9fe;
         }
         
         /* Tab styling */
         .tab-button {
             padding: 12px 24px;
             border-bottom: 3px solid transparent;
-            color: #9CA3AF;
+            color: var(--widget-muted-foreground-color);
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
+            background-color: transparent;
         }
         
         .tab-button:hover {
-            color: #D1D5DB;
-            background-color: #374151;
+            color: var(--widget-secondary-foreground-color);
+            background-color: var(--widget-secondary-color);
         }
         
         .tab-button.active {
-            color: #3B82F6;
-            border-bottom-color: #3B82F6;
-            background-color: #1F2937;
+            color: var(--widget-accent-color);
+            border-bottom-color: var(--widget-accent-color);
+            background-color: var(--widget-card-color);
         }
         
         .tab-content {
@@ -50,8 +75,8 @@
         th {
             text-align: left;
             padding: 10px 14px;
-            background-color: #374151;
-            color: #F3F4F6;
+            background-color: var(--widget-muted-color);
+            color: var(--widget-foreground-color);
             font-weight: 600;
             font-size: 0.75rem;
             line-height: 1rem;
@@ -62,8 +87,8 @@
         /* Style for table cells */
         td {
             padding: 10px 14px;
-            border-bottom: 1px solid #374151;
-            color: #D1D5DB;
+            border-bottom: 1px solid var(--widget-border-color);
+            color: var(--widget-muted-foreground-color);
             font-size: 0.875rem;
             line-height: 1.25rem;
             word-break: break-word;
@@ -71,7 +96,7 @@
         
         /* Alternating row colors for readability */
         tr:nth-child(even) {
-            background-color: #374151;
+            background-color: var(--widget-muted-color);
         }
         
         /* Key-value pair styling */
@@ -86,27 +111,27 @@
         
         /* Alternating background for info-grid items - accounting for h3 header */
         .info-grid:nth-child(even) {
-            background-color: #374151;
+            background-color: var(--widget-secondary-color);
         }
         
         .info-label {
             font-weight: 600;
-            color: #F3F4F6;
+            color: var(--widget-foreground-color);
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
         }
         
         .info-value {
-            color: #D1D5DB;
+            color: var(--widget-muted-foreground-color);
             font-size: 0.875rem;
             word-break: break-word;
         }
         
         /* Status indicators */
         .status-managed {
-            background-color: #059669;
-            color: #ECFDF5;
+            background-color: var(--widget-success-color);
+            color: var(--widget-success-foreground-color);
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -114,8 +139,8 @@
         }
         
         .status-unmanaged {
-            background-color: #DC2626;
-            color: #FEE2E2;
+            background-color: var(--widget-error-color);
+            color: var(--widget-error-foreground-color);
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -123,22 +148,137 @@
         }
         
         .status-supervised {
-            background-color: #7C3AED;
-            color: #EDE9FE;
+            background-color: var(--widget-warning-color);
+            color: var(--widget-warning-foreground-color);
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+        
+        /* Card and section styling */
+        .card-primary {
+            background-color: var(--widget-card-color);
+            border: 1px solid var(--widget-border-color);
+        }
+        
+        .card-secondary {
+            background-color: var(--widget-secondary-color);
+        }
+        
+        .section-header {
+            color: var(--widget-foreground-color);
+        }
     </style>
 </head>
-<body class="text-white p-4 sm:p-6 md:p-8">
+<body class="p-4 sm:p-6 md:p-8">
 
     <div id="device-container" class="max-w-7xl mx-auto">
         <!-- Data will be dynamically inserted here -->
     </div>
 
     <script>
+        // Define the complete theme palettes - single source of truth
+        const themes = {
+            light: {
+                '--widget-bg-color': '#ffffff',
+                '--widget-foreground-color': '#020817',
+                '--widget-card-color': '#ffffff',
+                '--widget-card-foreground-color': '#020817',
+                '--widget-primary-color': '#020817',
+                '--widget-primary-foreground-color': '#f8fafc',
+                '--widget-secondary-color': '#f1f5f9',
+                '--widget-secondary-foreground-color': '#0f172a',
+                '--widget-muted-color': '#f1f5f9',
+                '--widget-muted-foreground-color': '#64748b',
+                '--widget-accent-color': '#3b82f6',
+                '--widget-accent-foreground-color': '#ffffff',
+                '--widget-border-color': '#e2e8f0',
+                '--widget-input-color': '#e2e8f0',
+                '--widget-success-color': '#059669',
+                '--widget-success-foreground-color': '#ecfdf5',
+                '--widget-error-color': '#dc2626',
+                '--widget-error-foreground-color': '#fee2e2',
+                '--widget-warning-color': '#7c3aed',
+                '--widget-warning-foreground-color': '#ede9fe'
+            },
+            dark: {
+                '--widget-bg-color': '#111827',
+                '--widget-foreground-color': '#f3f4f6',
+                '--widget-card-color': '#1f2937',
+                '--widget-card-foreground-color': '#f3f4f6',
+                '--widget-primary-color': '#f3f4f6',
+                '--widget-primary-foreground-color': '#111827',
+                '--widget-secondary-color': '#374151',
+                '--widget-secondary-foreground-color': '#f3f4f6',
+                '--widget-muted-color': '#374151',
+                '--widget-muted-foreground-color': '#d1d5db',
+                '--widget-accent-color': '#3b82f6',
+                '--widget-accent-foreground-color': '#ffffff',
+                '--widget-border-color': '#374151',
+                '--widget-input-color': '#374151',
+                '--widget-success-color': '#059669',
+                '--widget-success-foreground-color': '#ecfdf5',
+                '--widget-error-color': '#dc2626',
+                '--widget-error-foreground-color': '#fee2e2',
+                '--widget-warning-color': '#7c3aed',
+                '--widget-warning-foreground-color': '#ede9fe'
+            }
+        };
+
+        /**
+         * Applies a full theme palette to the document root
+         * @param {object} themeObject The theme object (e.g., themes.light)
+         */
+        function applyTheme(themeObject) {
+            const root = document.documentElement;
+            for (const [key, value] of Object.entries(themeObject)) {
+                root.style.setProperty(key, value);
+            }
+        }
+
+        // Google SecOps theme integration
+        onmessage = evt => {
+            for (const [key, value] of Object.entries(evt.data)) {
+                document.body.style[key] = value;
+            }
+            
+            // Detect if SecOps is using dark mode based on background color
+            const isDarkMode = isSecOpsDarkMode();
+            applyTheme(isDarkMode ? themes.dark : themes.light);
+        };
+        
+        // Function to detect SecOps dark mode based on body background
+        function isSecOpsDarkMode() {
+            const bodyBg = document.body.style.backgroundColor || getComputedStyle(document.body).backgroundColor;
+            
+            // Parse RGB values to determine if it's a dark background
+            if (bodyBg.includes('rgb')) {
+                const rgbMatch = bodyBg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (rgbMatch) {
+                    const [, r, g, b] = rgbMatch.map(Number);
+                    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                    return brightness < 128; // Dark if brightness is low
+                }
+            }
+            
+            return false;
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial theme based on current body styles
+            const isDarkMode = isSecOpsDarkMode();
+            applyTheme(isDarkMode ? themes.dark : themes.light);
+            
+            if (!jsonData) {
+                container.innerHTML = '<p class="text-center text-themed-tertiary">No device information to display.</p>';
+                return;
+            }
+
+            container.innerHTML = renderDeviceWidget(jsonData);
+        });
+
         let jsonData = null;
         if ('[Jamf_Get Device Information_1.is_success]' == 'true') {
             jsonData = JSON.parse(`[Jamf_Get Device Information_1.JsonResult]`);
@@ -219,7 +359,7 @@
          */
         function createTable(data, title) {
             if (!Array.isArray(data) || data.length === 0) {
-                return `<p class="text-gray-400 italic">No ${title.toLowerCase()} data available.</p>`;
+                return `<p class="text-themed-tertiary italic">No ${title.toLowerCase()} data available.</p>`;
             }
 
             const headers = Object.keys(data[0]);
@@ -262,7 +402,7 @@
          */
         function createApplicationsTable(data) {
             if (!Array.isArray(data) || data.length === 0) {
-                return `<p class="text-gray-400 italic">No applications data available.</p>`;
+                return `<p class="text-themed-tertiary italic">No applications data available.</p>`;
             }
 
             let html = `
@@ -309,8 +449,8 @@
             return `
                 <div class="space-y-6">
                     <!-- Basic Computer Information -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Computer Information</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Computer Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Computer Name</div>
                             <div class="info-value">${formatValue(general.name)}</div>
@@ -346,8 +486,8 @@
                     </div>
 
                     <!-- Network Information -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Network Information</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Network Information</h3>
                         <div class="info-grid">
                             <div class="info-label">IP Address</div>
                             <div class="info-value">${formatValue(general.lastIpAddress)}</div>
@@ -363,8 +503,8 @@
                     </div>
 
                     <!-- Timestamps and Updates -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Last Activity</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Last Activity</h3>
                         <div class="info-grid">
                             <div class="info-label">Last Inventory Update</div>
                             <div class="info-value">${formatValue(general.reportDate)}</div>
@@ -388,8 +528,8 @@
                     </div>
 
                     <!-- User Information -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">User Information</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">User Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Last User Logged in to Computer</div>
                             <div class="info-value">${formatValue(general.lastLoggedInUsernameBinary)}</div>
@@ -409,8 +549,8 @@
                     </div>
 
                     <!-- Management Status -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Management Status</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Management Status</h3>
                         <div class="info-grid">
                             <div class="info-label">Managed</div>
                             <div class="info-value">${createStatusBadge('managed', remoteManagement.managed)}</div>
@@ -442,8 +582,8 @@
                     </div>
 
                     <!-- System Information -->
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">System Information</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">System Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Jamf Binary Version</div>
                             <div class="info-value">${formatValue(general.jamfBinaryVersion)}</div>
@@ -464,8 +604,8 @@
 
                     <!-- Enrollment Method -->
                     ${enrollmentMethod && Object.keys(enrollmentMethod).length > 0 ? `
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Enrollment Method</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Enrollment Method</h3>
                         <div class="info-grid">
                             <div class="info-label">Enrollment Method ID</div>
                             <div class="info-value">${formatValue(enrollmentMethod.id)}</div>
@@ -483,8 +623,8 @@
 
                     <!-- Extension Attributes -->
                     ${extensionAttributes && extensionAttributes.length > 0 ? `
-                    <div class="bg-gray-800 rounded-lg p-6 info-section">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Extension Attributes</h3>
+                    <div class="card-primary rounded-lg p-6 info-section">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Extension Attributes</h3>
                         ${extensionAttributes.map(attr => `
                             <div class="info-grid">
                                 <div class="info-label">${formatValue(attr.name)}</div>
@@ -506,8 +646,8 @@
             return `
                 <div class="space-y-6">
                     <!-- Basic Hardware Information -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Basic Hardware Information</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Basic Hardware Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Make</div>
                             <div class="info-value">${formatValue(hardware.make)}</div>
@@ -535,8 +675,8 @@
                     </div>
 
                     <!-- Processor Information -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Processor Information</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Processor Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Processor Type</div>
                             <div class="info-value">${formatValue(hardware.processorType)}</div>
@@ -568,8 +708,8 @@
                     </div>
 
                     <!-- Network Information -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Network Adapters</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Network Adapters</h3>
                         <div class="info-grid">
                             <div class="info-label">Primary Network Adapter Type</div>
                             <div class="info-value">${formatValue(hardware.networkAdapterType)}</div>
@@ -593,8 +733,8 @@
                     </div>
 
                     <!-- Memory Information -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Memory Information</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Memory Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Total RAM</div>
                             <div class="info-value">${hardware.totalRamMegabytes ? `${hardware.totalRamMegabytes} MB` : formatValue(hardware.totalRam)}</div>
@@ -606,8 +746,8 @@
                     </div>
 
                     <!-- Power and Battery -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Power and Battery</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Power and Battery</h3>
                         <div class="info-grid">
                             <div class="info-label">Battery Capacity</div>
                             <div class="info-value">${hardware.batteryCapacityPercent ? `${hardware.batteryCapacityPercent}%` : formatValue(hardware.batteryCapacity)}</div>
@@ -619,8 +759,8 @@
                     </div>
 
                     <!-- System Components -->
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">System Components</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">System Components</h3>
                         <div class="info-grid">
                             <div class="info-label">SMC Version</div>
                             <div class="info-value">${formatValue(hardware.smcVersion)}</div>
@@ -646,8 +786,8 @@
             
             return `
                 <div class="space-y-6">
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">User Information</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">User Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Username</div>
                             <div class="info-value">${formatValue(userLocation.username)}</div>
@@ -670,8 +810,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Location Information</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Location Information</h3>
                         <div class="info-grid">
                             <div class="info-label">Department</div>
                             <div class="info-value">${formatValue(userLocation.departmentId)}</div>
@@ -697,8 +837,8 @@
             
             return `
                 <div class="space-y-6">
-                    <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-200">Installed Applications</h3>
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Installed Applications</h3>
                         ${createApplicationsTable(applications)}
                     </div>
                 </div>
@@ -708,28 +848,28 @@
         /**
          * Renders the complete device information widget
          */
-        function renderDeviceWidget(data) {
+         function renderDeviceWidget(data) {
             const deviceInfo = data.device_info || {};
             const deviceId = data.device_id || 'Unknown';
             const deviceName = deviceInfo.general?.name || `Device ${deviceId}`;
             const managementId = deviceInfo.general?.managementId || 'Unknown';
             
             return `
-                <div class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
+                <div class="card-primary rounded-xl shadow-2xl overflow-hidden">
                     <!-- Card Header -->
-                    <div class="p-4 sm:p-6 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
+                    <div class="p-4 sm:p-6 card-secondary border-b border-themed flex justify-between items-center">
                         <div>
-                            <h1 class="text-xl font-bold text-white">${deviceName}</h1>
-                            <p class="text-gray-400 text-sm">Management ID: ${managementId}</p>
+                            <h1 class="text-xl font-bold text-themed-primary">${deviceName}</h1>
+                            <p class="text-themed-tertiary text-sm">Management ID: ${managementId}</p>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm text-gray-400">Platform</div>
-                            <div class="text-lg font-semibold text-blue-400">${deviceInfo.general?.platform || 'Unknown'}</div>
+                            <div class="text-sm text-themed-tertiary">Platform</div>
+                            <div class="text-lg font-semibold" style="color: var(--widget-accent-color);">${deviceInfo.general?.platform || 'Unknown'}</div>
                         </div>
                     </div>
                     
                     <!-- Tab Navigation -->
-                    <div class="bg-gray-800 border-b border-gray-700">
+                    <div class="card-secondary border-b border-themed">
                         <div class="flex space-x-0">
                             <button class="tab-button active" onclick="switchTab(event, 'general')">General</button>
                             <button class="tab-button" onclick="switchTab(event, 'hardware')">Hardware</button>
@@ -780,16 +920,6 @@
 
         // Make switchTab function globally available
         window.switchTab = switchTab;
-
-        // Initial render of the data
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!jsonData) {
-                container.innerHTML = '<p class="text-center text-gray-400">No device information to display.</p>';
-                return;
-            }
-
-            container.innerHTML = renderDeviceWidget(jsonData);
-        });
 
     </script>
 </body>
