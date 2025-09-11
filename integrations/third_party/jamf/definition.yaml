@@ -25,7 +25,10 @@ parameters:
       is_mandatory: false
       default_value: true
       integration_identifier: Jamf
-categories: [ ]
+categories:
+  - Endpoint Security
+  - Endpoint Management
+  - IT & Infrastructure
 svg_logo_path: resources/logo.svg
 image_path: resources/image.png
 description: Jamf Pro integration for computer management and endpoint security. This integration enables device management, inventory retrieval, security actions, and configuration management for macOS computers managed through Jamf Pro.
@@ -42,8 +45,3 @@ actions:
   - UpdateExtensionAttribute
 widgets:
   - GetDeviceInformation
-supported_entities: []
-tags:
-  - endpoint_security
-  - device_management
-  - apple_devices
