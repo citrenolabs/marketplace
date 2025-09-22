@@ -1,5 +1,5 @@
 name: Wipe Managed Device
-description: Remotely erase/wipe a managed computer using Jamf Pro ERASE_DEVICE MDM command.
+description: Remotely erase/wipe a managed computer using Jamf Pro ERASE_DEVICE MDM command. This action is designed specifically for computers. For mobile device wipe functionality, use the "Wipe Mobile Device" action instead.
 script: WipeManagedDevice.py
 type: containment
 integration_identifier: Jamf

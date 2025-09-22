@@ -1,5 +1,5 @@
 name: Remote Lock Managed Device
-description: Remotely lock a managed computer using Jamf Pro MDM commands. This action will lock the device screen and can optionally display a custom message and phone number.
+description: Remotely lock a managed computer using Jamf Pro MDM commands. This action is designed specifically for computers. This action will lock the device screen and can optionally display a custom message and phone number. For mobile device lock functionality, use the "Remote Lock Mobile Device" action instead.
 script: RemoteLockManagedDevice.py
 type: containment
 integration_identifier: Jamf
@@ -47,7 +47,3 @@ dynamic_results_metadata:
           "status": "Pending"
         }
       }
-default_result_value: ""
-creator: Admin
-script_result_name: ScriptResult
-supported_entity_types: []
