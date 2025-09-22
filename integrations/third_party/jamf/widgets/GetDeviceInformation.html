@@ -279,6 +279,147 @@
             return false;
         }
         
+        /**
+         * Robust JSON data cleaning function
+         */
+         function cleanJsonData(jsonString) {
+            let result = '';
+            let inString = false;
+            let escapeNext = false;
+            
+            // Helper function to find next non-whitespace character
+            function findNextNonWhitespace(startIndex) {
+                for (let k = startIndex; k < jsonString.length; k++) {
+                    if (jsonString[k] !== ' ' && jsonString[k] !== '\t' && 
+                        jsonString[k] !== '\n' && jsonString[k] !== '\r') {
+                        return jsonString[k];
+                    }
+                }
+                return null;
+            }
+            
+            for (let i = 0; i < jsonString.length; i++) {
+                const char = jsonString[i];
+                
+                if (escapeNext) {
+                    // If we're escaping the next character, just add it as-is
+                    result += char;
+                    escapeNext = false;
+                    continue;
+                }
+                
+                if (char === '\\') {
+                    // Mark that we should escape the next character
+                    result += char;
+                    escapeNext = true;
+                    continue;
+                }
+                
+                if (char === '"') {
+                    // For unescaped quotes, determine if this ends/starts a string or is content within
+                    if (inString) {
+                        // We're currently in a string - check if this quote actually ends it
+                        const nextNonWhitespace = findNextNonWhitespace(i + 1);
+                        
+                        // If followed by valid JSON terminators, this ends the string
+                        if (nextNonWhitespace === ',' || nextNonWhitespace === '}' || 
+                            nextNonWhitespace === ']' || nextNonWhitespace === ':' || 
+                            nextNonWhitespace === null) {
+                            inString = false;
+                            result += char;
+                        } else {
+                            // This quote is content within the string - escape it
+                            result += '\\"';
+                        }
+                    } else {
+                        // We're not in a string - this quote starts a new string
+                        inString = true;
+                        result += char;
+                    }
+                    continue;
+                }
+                
+                if (inString) {
+                    // Inside a string value - escape special characters
+                    switch (char) {
+                        case '\n':
+                            result += '\\n';
+                            break;
+                        case '\r':
+                            result += '\\r';
+                            break;
+                        case '\t':
+                            result += '\\t';
+                            break;
+                        case '\b':
+                            result += '\\b';
+                            break;
+                        case '\f':
+                            result += '\\f';
+                            break;
+                        default:
+                            result += char;
+                    }
+                } else {
+                    // Outside string values - handle structural issues
+                    if (char === ',') {
+                        // Skip trailing commas before } or ]
+                        const nextNonWhitespace = findNextNonWhitespace(i + 1);
+                        if (nextNonWhitespace === '}' || nextNonWhitespace === ']') {
+                            continue;
+                        }
+                    }
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+
+        let jsonData = null;
+        if ('[Jamf_Get Device Information_1.is_success]' == 'true') {
+            try {
+                // Get raw JSON data
+                let rawData = `[Jamf_Get Device Information_1.JsonResult]`;
+                
+                // More robust JSON cleaning
+                // rawData = cleanJsonData(rawData);
+                
+                jsonData = JSON.parse(rawData);
+            } catch (error) {
+                console.error('Failed to parse device information JSON:', error);
+                
+                const rawData = `[Jamf_Get Device Information_1.JsonResult]`;
+                
+                // Extract error context if position is available
+                if (error.message && error.message.includes('column')) {
+                    const match = error.message.match(/column (\d+)/);
+                    if (match) {
+                        const errorPos = parseInt(match[1]);
+                        const start = Math.max(0, errorPos - 100);
+                        const end = Math.min(rawData.length, errorPos + 100);
+                        console.error('Error context (±100 chars):', rawData.substring(start, end));
+                        console.error('Character at error position:', rawData.charAt(errorPos));
+                    }
+                }
+                
+                // Check for common JSON issues
+                if (rawData.includes('""')) {
+                    console.warn('Found empty string pairs - possible escaping issue');
+                }
+                if (rawData.includes('\n') || rawData.includes('\r')) {
+                    console.warn('Found newline characters - possible line break issue');
+                }
+                if (rawData.includes('\\"')) {
+                    console.warn('Found escaped quotes - possible escaping issue');
+                }
+                
+                jsonData = null;
+            }
+        }
+
+        const container = document.getElementById('device-container');
+        
         // Initialize theme on page load
         document.addEventListener('DOMContentLoaded', () => {
             // Set initial theme based on current body styles
@@ -286,20 +427,17 @@
             applyTheme(isDarkMode ? themes.dark : themes.light);
             
             if (!jsonData) {
-                container.innerHTML = '<p class="text-center text-themed-tertiary">No device information to display.</p>';
+                container.innerHTML = '<div class="card-primary rounded-lg p-6 text-center"><p class="text-themed-tertiary">Unable to load device information. Please check the action output or try again.</p></div>';
                 return;
             }
 
-            container.innerHTML = renderDeviceWidget(jsonData);
+            try {
+                container.innerHTML = renderDeviceWidget(jsonData);
+            } catch (error) {
+                console.error('Failed to render device widget:', error);
+                container.innerHTML = '<div class="card-primary rounded-lg p-6 text-center"><p class="text-themed-tertiary">Error displaying device information. Please check the console for details.</p></div>';
+            }
         });
-
-        let jsonData = null;
-        if ('[Jamf_Get Device Information_1.is_success]' == 'true') {
-            jsonData = JSON.parse(`[Jamf_Get Device Information_1.JsonResult]`);
-        }
-
-        const container = document.getElementById('device-container');
-
         /**
          * Formats a camelCase string to a readable Title Case string.
          */
