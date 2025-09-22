@@ -1,0 +1,42 @@
+name: Remote Lock Mobile Device
+description: Remotely lock a managed mobile device using Jamf Pro MDM commands. This action will lock the device screen and can optionally display a custom message and phone number.
+script: RemoteLockMobileDevice.py
+type: containment
+integration_identifier: Jamf
+timeout_seconds: 300
+parameters:
+  - name: Mobile Device ID
+    type: string
+    description: The ID of the mobile device to lock (required)
+    is_mandatory: true
+    default_value: ""
+  - name: Message
+    type: string
+    description: Optional custom message to display on the locked device screen
+    is_mandatory: false
+    default_value: ""
+  - name: Phone Number
+    type: string
+    description: Optional phone number to display on the locked device screen for contact
+    is_mandatory: false
+    default_value: ""
+dynamic_results_metadata:
+  - result_name: JsonResult
+    show_result: true
+    result_example: |
+      {
+        "lock_command_result": [
+          {
+            "id": "1",
+            "href": "https://yourJamfProUrl.jamf/api/v1/resource/1"
+          }
+        ],
+        "command_details": {
+          "mobile_device_id": "12345",
+          "command_type": "device_lock",
+          "message_used": true,
+          "phone_number_used": true,
+          "timestamp": 1641234567,
+          "status": "initiated"
+        }
+      }
