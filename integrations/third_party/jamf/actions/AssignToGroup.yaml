@@ -20,9 +20,9 @@ parameters:
     description: "Comma-separated list of computer names to add (e.g., \"MacBook-1,MacBook-2\"). WARNING: Computer names are not required to be unique in Jamf. The API will act on the first matching record found. Use Computer IDs or Serial Numbers for reliable identification."
     is_mandatory: false
     default_value: ""
-  - name: Serial Numbers
+  - name: Computer Serial Numbers
     type: string
-    description: Comma-separated list of serial numbers to add (e.g., "ABC123,DEF456")
+    description: Comma-separated list of computer serial numbers to add (e.g., "ABC123,DEF456")
     is_mandatory: false
     default_value: ""
 dynamic_results_metadata:
