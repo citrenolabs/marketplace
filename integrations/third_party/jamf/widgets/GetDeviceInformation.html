@@ -282,7 +282,7 @@
         /**
          * Robust JSON data cleaning function
          */
-         function cleanJsonData(jsonString) {
+        function cleanJsonData(jsonString) {
             let result = '';
             let inString = false;
             let escapeNext = false;
@@ -309,6 +309,14 @@
                 }
                 
                 if (char === '\\') {
+                    // Check specifically for \, sequences in certificate DNs
+                    if (i + 1 < jsonString.length && jsonString[i + 1] == ",") {
+                        // Convert \, to \\, for valid JSON
+                        result += "\\\\,"
+                        i += 1  // Skip the comma since we've processed it
+                        continue;
+                    }
+                    
                     // Mark that we should escape the next character
                     result += char;
                     escapeNext = true;
@@ -383,7 +391,7 @@
                 let rawData = `[Jamf_Get Device Information_1.JsonResult]`;
                 
                 // More robust JSON cleaning
-                // rawData = cleanJsonData(rawData);
+                rawData = cleanJsonData(rawData);
                 
                 jsonData = JSON.parse(rawData);
             } catch (error) {
