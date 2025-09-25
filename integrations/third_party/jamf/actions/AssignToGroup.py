@@ -149,7 +149,9 @@ def main() -> NoReturn:
             group_id=group_id,
             computer_ids=computer_ids_list if computer_ids_list else None,
             computer_names=computer_names_list if computer_names_list else None,
-            computer_serial_numbers=computer_serial_numbers_list if computer_serial_numbers_list else None,
+            computer_serial_numbers=computer_serial_numbers_list
+            if computer_serial_numbers_list
+            else None,
         )
 
         siemplify.LOGGER.info(f"Result in Assign to Group action - Group ID: {result}")
@@ -179,7 +181,9 @@ def main() -> NoReturn:
         if computer_names_list:
             computer_details.extend([f"Name: {name}" for name in computer_names_list[:3]])
         if computer_serial_numbers_list:
-            computer_details.extend([f"Serial: {serial}" for serial in computer_serial_numbers_list[:3]])
+            computer_details.extend([
+                f"Serial: {serial}" for serial in computer_serial_numbers_list[:3]
+            ])
 
         if computer_details:
             output_message += "\n\nComputer Details:\n• " + "\n• ".join(computer_details)
