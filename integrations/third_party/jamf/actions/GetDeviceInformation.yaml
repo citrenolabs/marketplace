@@ -1,13 +1,13 @@
 name: Get Device Information
-description: Retrieve detailed device information from Jamf Pro by device ID
+description: Retrieve detailed computer information from Jamf Pro by computer ID
 script: GetDeviceInformation.py
 type: enrichment
 integration_identifier: Jamf
 timeout_seconds: 600
 parameters:
-  - name: Device ID
+  - name: Computer ID
     type: string
-    description: The ID of the device to retrieve information for
+    description: The ID of the computer to retrieve information for
     is_mandatory: true
     default_value: ""
 dynamic_results_metadata:

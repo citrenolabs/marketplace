@@ -66,14 +66,16 @@ def main() -> NoReturn:
         )
 
         # Action parameters
-        device_id = extract_action_param(
+        computer_id = extract_action_param(
             siemplify,
-            param_name="Device ID",
+            param_name="Computer ID",
             is_mandatory=True,
             print_value=True,
         )
 
-        siemplify.LOGGER.info(f"Starting Get Device Information action for device ID: {device_id}")
+        siemplify.LOGGER.info(
+            f"Starting Get Device Information action for device ID: {computer_id}"
+        )
         siemplify.LOGGER.info("----------------- Main - Started -----------------")
 
         # Initialize Jamf Manager
@@ -86,26 +88,28 @@ def main() -> NoReturn:
         )
 
         # Retrieve device information
-        device_info = jamf_manager.get_device_info(device_id)
+        device_info = jamf_manager.get_device_info(computer_id)
 
         if device_info:
-            siemplify.LOGGER.info(f"Successfully retrieved device information for ID: {device_id}")
+            siemplify.LOGGER.info(
+                f"Successfully retrieved device information for ID: {computer_id}"
+            )
 
             # Prepare comprehensive result
             json_result = {
-                "device_id": device_id,
+                "device_id": computer_id,
                 "device_info": device_info,
             }
 
             siemplify.result.add_result_json(json_result)
 
-            output_message = f"Successfully retrieved device information for (ID: {device_id})"
+            output_message = f"Successfully retrieved device information for (ID: {computer_id})"
             result_value = True
             status = EXECUTION_STATE_COMPLETED
 
         else:
-            siemplify.LOGGER.info(f"No device information found for ID: {device_id}")
-            output_message = f"No device information found for device ID: {device_id}"
+            siemplify.LOGGER.info(f"No device information found for ID: {computer_id}")
+            output_message = f"No device information found for device ID: {computer_id}"
             result_value = False
             status = EXECUTION_STATE_COMPLETED
 
