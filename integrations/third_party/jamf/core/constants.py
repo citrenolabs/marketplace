@@ -1,7 +1,7 @@
 INTEGRATION_NAME = "Jamf"
 INTEGRATION_DISPLAY_NAME = "Jamf"
 
-# API ENDPOINTS
+# Jamf Pro API ENDPOINTS
 API_ENDPOINTS = {
     # Authentication
     "auth": "/api/v1/oauth/token",
@@ -21,6 +21,17 @@ API_ENDPOINTS = {
     "mobile_device_inventory_detail": "/api/v2/mobile-devices/{id}",
 }
 
+# Jamf Protect API ENDPOINTS
+PROTECT_API_ENDPOINTS = {"auth": "token", "graphQL": "graphql"}
+
+# Mapping from UI value to Jamf Protect GraphQL enum for prevent lists
+PROTECT_PREVENT_TYPE_MAP = {
+    "File Hash": "FILEHASH",
+    "Signing Information - Team ID": "TEAMID",
+    "Signing Information - Code Directory Hash": "CDHASH",
+    "Signing Information - Signing ID": "SIGNINGID",
+}
+
 # ACTION NAMES
 PING_SCRIPT_NAME = f"{INTEGRATION_NAME} - Ping"
 LIST_COMPUTER_GROUPS_SCRIPT_NAME = f"{INTEGRATION_NAME} - List Computer Groups"
@@ -34,12 +45,14 @@ ASSIGN_TO_GROUP_SCRIPT_NAME = f"{INTEGRATION_NAME} - Assign to Group"
 UPDATE_EXTENSION_ATTRIBUTE_SCRIPT_NAME = f"{INTEGRATION_NAME} - Update Extension Attribute"
 REMOTE_LOCK_MOBILE_DEVICE_SCRIPT_NAME = f"{INTEGRATION_NAME} - Remote Lock Mobile Device"
 WIPE_MOBILE_DEVICE_SCRIPT_NAME = f"{INTEGRATION_NAME} - Wipe Mobile Device"
+CREATE_PREVENT_LIST_SCRIPT_NAME = f"{INTEGRATION_NAME} - Create Prevent List"
+UPDATE_PREVENT_LIST_SCRIPT_NAME = f"{INTEGRATION_NAME} - Update Prevent List"
 
 # CASE WALL TABLE NAMES
 ENRICH_TABLE_NAME = "Jamf Report for: {}"
 
 # HTTP HEADERS
-VERSION = "1.0.0"
+VERSION = "2.0.0"
 USER_AGENT = f"Jamf%20SOAR%20Integration/{VERSION} SecOps/Chronicle"
 
 # ENRICHMENT PREFIX

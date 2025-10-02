@@ -1,6 +1,12 @@
 identifier: Jamf
 name: Jamf
 parameters:
+    - name: API Root
+      type: string
+      description: 'Jamf Pro server URL (e.g., https://yourserver.jamfcloud.com)'
+      is_mandatory: true
+      default_value: https://yourServer.jamfcloud.com/
+      integration_identifier: Jamf
     - name: Client API ID
       type: string
       description: 'Client API ID for Jamf Pro API authentication'
@@ -13,11 +19,23 @@ parameters:
       is_mandatory: true
       default_value: ClientAPISecret
       integration_identifier: Jamf
-    - name: API Root
+    - name: Jamf Protect API Root
       type: string
-      description: 'Jamf Pro server URL (e.g., https://yourserver.jamfcloud.com)'
-      is_mandatory: true
-      default_value: https://yourServer.jamfcloud.com/
+      description: 'Jamf Protect server URL (e.g., https://yourserver.protect.jamfcloud.com)'
+      is_mandatory: false
+      default_value: https://yourServer.protect.jamfcloud.com/
+      integration_identifier: Jamf
+    - name: Jamf Protect Client API ID
+      type: string
+      description: 'Client API ID for Jamf Protect API authentication'
+      is_mandatory: false
+      default_value: JamfProtectClientAPIID
+      integration_identifier: Jamf
+    - name: Jamf Protect Client API Secret
+      type: password
+      description: 'Client API Secret for Jamf Protect API authentication'
+      is_mandatory: false
+      default_value: JamfProtectClientAPISecret
       integration_identifier: Jamf
     - name: Verify SSL
       type: boolean
@@ -46,6 +64,7 @@ actions:
   - GetMobileDeviceInventory
   - RemoteLockMobileDevice
   - WipeMobileDevice
+  - UpdatePreventList
 widgets:
   - GetDeviceInformation
   - GetComputerInventory

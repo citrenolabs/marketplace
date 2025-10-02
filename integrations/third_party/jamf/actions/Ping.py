@@ -10,6 +10,7 @@ from TIPCommon.extraction import extract_configuration_param
 from ..core.constants import INTEGRATION_NAME, PING_SCRIPT_NAME
 from ..core.exceptions import JamfError
 from ..core.JamfManager import JamfManager
+from ..core.JamfProtectManager import JamfProtectManager
 
 if TYPE_CHECKING:
     from typing import NoReturn
@@ -22,6 +23,8 @@ def main() -> NoReturn:
 
     This action verifies that the integration can successfully authenticate
     and communicate with the Jamf Pro server using the provided credentials.
+    If Jamf Protect configuration is provided, it will also test connectivity
+    to Jamf Protect's GraphQL API.
     """
     siemplify = SiemplifyAction()
     siemplify.script_name = PING_SCRIPT_NAME
@@ -60,6 +63,29 @@ def main() -> NoReturn:
         default_value=True,
         print_value=True,
     )
+
+    # Optional Jamf Protect configuration
+    protect_api_root = extract_configuration_param(
+        siemplify,
+        provider_name=INTEGRATION_NAME,
+        param_name="Jamf Protect API Root",
+        is_mandatory=False,
+        print_value=True,
+    )
+    protect_client_api_id = extract_configuration_param(
+        siemplify,
+        provider_name=INTEGRATION_NAME,
+        param_name="Jamf Protect Client API ID",
+        is_mandatory=False,
+        print_value=True,
+    )
+    protect_client_api_secret = extract_configuration_param(
+        siemplify,
+        provider_name=INTEGRATION_NAME,
+        param_name="Jamf Protect Client API Secret",
+        is_mandatory=False,
+        print_value=False,
+    )
     siemplify.LOGGER.info("----------------- Main - Started -----------------")
 
     status = EXECUTION_STATE_COMPLETED
@@ -76,21 +102,35 @@ def main() -> NoReturn:
             logger=logger,
         )
 
-        # Test connectivity
+        # Test connectivity (Jamf Pro)
         manager.test_connectivity()
 
-        output_message = "Successfully connected to Jamf Pro"
+        messages = ["Successfully connected to Jamf Pro"]
+
+        # Optionally test Jamf Protect if all Protect params were provided
+        if protect_api_root and protect_client_api_id and protect_client_api_secret:
+            protect_manager = JamfProtectManager(
+                api_root=protect_api_root,
+                client_api_id=protect_client_api_id,
+                client_api_secret=protect_client_api_secret,
+                verify_ssl=verify_ssl,
+                logger=logger,
+            )
+            protect_manager.test_connectivity()
+            messages.append("Successfully connected to Jamf Protect")
+
+        output_message = "; ".join(messages)
         result_value = True
         status = EXECUTION_STATE_COMPLETED
 
         siemplify.LOGGER.info("Connectivity test passed")
 
     except JamfError as e:
-        siemplify.LOGGER.error(f"Failed to connect to Jamf Pro: {e}")
+        siemplify.LOGGER.error(f"Failed to connect: {e}")
         siemplify.LOGGER.exception(e)
         result_value = False
         status = EXECUTION_STATE_FAILED
-        output_message = f"Failed to connect to Jamf Pro: {e}"
+        output_message = str(e)
 
     siemplify.LOGGER.info("----------------- Main - Finished -----------------")
     siemplify.LOGGER.info(f"Status: {status}")
