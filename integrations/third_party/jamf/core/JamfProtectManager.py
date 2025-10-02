@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import time
 from typing import Optional
 from urllib.parse import urljoin
@@ -27,9 +28,9 @@ class JamfProtectManager:
         Initialize Jamf Protect Manager
 
         Args:
-            api_root: Jamf Protect server URL (e.g., https://yourserver.jamfcloud.com)
-            client_api_id: API client ID
-            client_api_secret: API client secret
+            api_root: Jamf Protect server URL (e.g., https://yourserver.protect.jamfcloud.com)
+            client_api_id: Jamf Protect API client ID
+            client_api_secret: Jamf Protect API client secret
             verify_ssl: Whether to verify SSL certificates
             logger: Logger instance
         """
@@ -49,6 +50,8 @@ class JamfProtectManager:
 
         self.access_token: Optional[str] = None
         self.token_expiration_epoch: int = 0
+        self.auth_timeout = 30
+        self.graphql_timeout = 60
 
     def _log(self, level: str, message: str) -> None:
         if self.logger:
@@ -71,7 +74,7 @@ class JamfProtectManager:
         token_url = self._get_full_url(PROTECT_API_ENDPOINTS["auth"])
         payload = {"client_id": self.client_api_id, "password": self.client_api_secret}
         self._log("info", f"Requesting Jamf Protect token at: {token_url}")
-        resp = self.session.post(token_url, json=payload, timeout=30)
+        resp = self.session.post(token_url, json=payload, timeout=self.auth_timeout)
         if resp.status_code != 200:
             raise JamfError(
                 f"Jamf Protect token request failed: HTTP {resp.status_code} - {resp.text}"
@@ -85,93 +88,109 @@ class JamfProtectManager:
         self.token_expiration_epoch = int(time.time()) + max(expires_in - 1, 0)
         return token
 
-    def _ensure_token(self) -> None:
-        if not self.access_token or int(time.time()) >= self.token_expiration_epoch:
+    def check_token_expiration(self) -> bool:
+        """
+        Check if current token is valid and get new one if needed
+
+        Returns:
+            True if valid token is available
+        """
+        current_epoch = int(time.time())
+
+        if self.token_expiration_epoch >= current_epoch and self.access_token:
+            self._log("info", f"Token valid until epoch time: {self.token_expiration_epoch}")
+            return True
+        else:
+            self._log("info", "No valid token available, getting new token")
             self.get_access_token()
+            return True
 
-    def graphql(self, query: str, variables: Optional[dict] = None) -> dict:
-        """Call Jamf Protect GraphQL endpoint.
-
-        Jamf Protect expects Authorization header to be the raw token (no 'Bearer ').
-        """
-        self._ensure_token()
-        if variables is None:
-            variables = {}
-        url = self._get_full_url("graphQL")
-        headers = {
-            "Authorization": self.access_token or "",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        }
-        payload = {"query": query, "variables": variables}
-        self._log("info", f"POST {url} (GraphQL)")
-        self._log("info", f"Payload: {payload}")
-        resp = self.session.post(url, json=payload, headers=headers, timeout=60)
-        try:
-            data = resp.json()
-            self._log("info", f"Response: {data}")
-        except Exception:
-            data = {"raw": resp.text}
-        if resp.status_code != 200:
-            raise JamfError(f"Jamf Protect GraphQL HTTP {resp.status_code}: {resp.text}")
-        # GraphQL may include 'errors' while still being HTTP 200; caller can decide handling.
-        return data
-
-    def test_connectivity(self) -> bool:
-        """Test Jamf Protect connectivity by obtaining an access token.
-        """
-        self._log("info", "Testing Jamf Protect connectivity (token only)...")
-        self.get_access_token()
+    def invalidate_token(self) -> bool:
+        self.access_token = None
+        self.token_expiration_epoch = 0
         return True
 
-    def create_prevent_list(
-        self,
-        name: str,
-        description: str | None,
-        prevent_type: str,
-        values: list[str],
-        tags: list[str] | None = None,
-    ) -> dict:
-        """Create a Jamf Protect prevent list and add items in a single mutation."""
-        if not name or not name.strip():
-            raise JamfError("Prevent list name is required")
-        if not values:
-            raise JamfError("At least one value must be provided for the prevent list")
-        if not tags:
-            raise JamfError("At least one tag must be provided for the prevent list")
+    def test_connectivity(self) -> bool:
+        """
+        Test connectivity to Jamf Protect API
 
-        prevent_type = PROTECT_PREVENT_TYPE_MAP.get(prevent_type)
-        if not prevent_type:
-            raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
+        Returns:
+            True if connection successful
 
-        # Helper to escape GraphQL string values
-        def _gql_escape(s: str) -> str:
-            return (s or "").replace("\\", "\\\\").replace('"', '\\"')
-
-        name_esc = _gql_escape(name)
-        desc_esc = _gql_escape(description or "")
-        values_list = ",".join([f'"{_gql_escape(v)}"' for v in values])
-        tags_list = ",".join([f'"{_gql_escape(t)}"' for t in (tags or [])])
-
-        mutation_inline_list = (
-            "mutation { "
-            f'createPreventList(input: {{ name:"{name_esc}", description:"{desc_esc}", '
-            f"type: {prevent_type}, list:[{values_list}], tags:[{tags_list}] }}) "
-            "{ id name description type list tags } }"
-        )
+        Raises:
+            JamfError: If connection fails
+        """
         try:
-            resp = self.graphql(mutation_inline_list)
-            self._log("info", f"Response: {resp}")
-            self._log("info", f"Mutation: {mutation_inline_list}")
-            errors = resp.get("errors") if isinstance(resp, dict) else None
-        except JamfError:
-            # If HTTP error, surface immediately
-            raise
+            # Ensure we have a valid token
+            self.check_token_expiration()
+            return True
 
-        if errors:
-            raise JamfError(f"Jamf Protect did not return a prevent list ID: {resp}")
+        except Exception as e:
+            error_msg = f"Unexpected error during connectivity test: {str(e)}"
+            self._log("error", error_msg)
+            raise JamfError(error_msg)
 
-        return resp
+    def graphql(self, query: str, variables: Optional[dict] = None) -> dict:
+        """Call Jamf Protect GraphQL API endpoint.
+
+        Args:
+            query: GraphQL query string
+            variables: GraphQL variables
+
+        Returns:
+            dict: API response containing the result of the GraphQL query
+
+        Raises:
+            JamfError: If the API request fails
+        """
+        try:
+            self.check_token_expiration()
+
+            url = self._get_full_url(PROTECT_API_ENDPOINTS["graphQL"])
+
+            headers = {
+                "Authorization": self.access_token or "",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            }
+            if variables:
+                payload = {"query": query, "variables": variables}
+            else:
+                payload = {"query": query}
+            self._log("info", f"POST {url} (GraphQL)")
+
+            response = self.session.post(
+                url, json=payload, headers=headers, timeout=self.graphql_timeout
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+
+                if isinstance(result, dict) and result.get("errors"):
+                    try:
+                        msgs = [e.get("message") or str(e) for e in result.get("errors", [])]
+                    except Exception:
+                        msgs = [str(result.get("errors"))]
+                    raise JamfError(f"Jamf Protect GraphQL errors: {'; '.join(msgs)}")
+
+                if result.get("data") is None:
+                    raise JamfError(f"Jamf Protect GraphQL data is None: {result.get('data', {})}")
+
+                self._log("info", "Successfully executed GraphQL query")
+
+                return result.get("data")
+            else:
+                error_msg = (
+                    f"Failed to execute GraphQL query. Status: {response.status_code}, "
+                    f"Response: {response.text}"
+                )
+                self._log("error", error_msg)
+                raise JamfError(error_msg)
+
+        except Exception as e:
+            error_msg = f"Unexpected error during GraphQL request: {str(e)}"
+            self._log("error", error_msg)
+            raise JamfError(error_msg)
 
     def update_prevent_list(
         self,
@@ -182,55 +201,130 @@ class JamfProtectManager:
         tags: list[str] | None = None,
         id: str | None = None,
     ) -> dict:
-        """Update a Jamf Protect prevent list and add items in a single mutation."""
-        if not name or not name.strip():
-            raise JamfError("Prevent list name is required")
-        if not values:
-            raise JamfError("At least one value must be provided for the prevent list")
-        if not tags:
-            raise JamfError("At least one tag must be provided for the prevent list")
-        if not prevent_type:
-            raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
+        """
+        Update a Jamf Protect prevent list and add items in a single mutation.
 
-        # Helper to escape GraphQL string values
-        def _gql_escape(s: str) -> str:
-            return (s or "").replace("\\", "\\\\").replace('"', '\\"')
+        Args:
+            name (str): The name of the prevent list to update
+            description (str | None): The description of the prevent list
+            prevent_type (str): The type of prevent list (e.g., "FILEHASH", "CDHASH", "TEAMID")
+            values (list[str]): List of values to add to the prevent list
+            tags (list[str] | None): List of tags to add to the prevent list
+            id (str | None): The ID of the prevent list to update
 
-        name_esc = _gql_escape(name)
-        desc_esc = _gql_escape(description or "")
-        values_list = ",".join([f'"{_gql_escape(v)}"' for v in values])
-        tags_list = ",".join([f'"{_gql_escape(t)}"' for t in (tags or [])])
+        Returns:
+            dict: API response containing the updated prevent list information
 
-        mutation_inline_list = (
-            "mutation { "
-            f'updatePreventList(input: {{ name:"{name_esc}", description:"{desc_esc}", '
-            f"type: {prevent_type}, list:[{values_list}], tags:[{tags_list}] }} id: {id}) "
-            "{ id name description type list tags } }"
-        )
+        Raises:
+            JamfError: If the API request fails
+        """
         try:
-            resp = self.graphql(mutation_inline_list)
-            self._log("info", f"Response: {resp}")
-            self._log("info", f"Mutation: {mutation_inline_list}")
-            errors = resp.get("errors") if isinstance(resp, dict) else None
-        except JamfError:
-            # If HTTP error, surface immediately
-            raise
+            if not name or not name.strip():
+                raise JamfError("Prevent list name is required")
+            if not values:
+                raise JamfError("At least one value must be provided for the prevent list")
+            if not tags:
+                raise JamfError("At least one tag must be provided for the prevent list")
+            if not prevent_type:
+                raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
 
-        if errors:
-            raise JamfError(f"Jamf Protect did not return a prevent list ID: {resp}")
+            self._validate_prevent_values(prevent_type, values)
 
-        return resp
+            # Helper to escape GraphQL string values
+            def _gql_escape(s: str) -> str:
+                return (s or "").replace("\\", "\\\\").replace('"', '\\"')
 
-    def list_prevent_lists(self) -> dict:
-        """List all Jamf Protect prevent lists."""
-        mutation_inline_list = (
-            "query {listPreventLists {items {id name description type list tags}}}"
-        )
+            name_esc = _gql_escape(name)
+            desc_esc = _gql_escape(description or "")
+            values_list = ",".join([f'"{_gql_escape(v)}"' for v in values])
+            tags_list = ",".join([f'"{_gql_escape(t)}"' for t in (tags or [])])
 
-        try:
-            resp = self.graphql(mutation_inline_list)
-            self._log("info", f"Response: {resp}")
-            result = resp.get("data", {}).get("listPreventLists", {}).get("items", [])
+            mutation = (
+                "mutation { "
+                f'updatePreventList(input: {{ name:"{name_esc}", description:"{desc_esc}", '
+                f'type: {prevent_type}, list:[{values_list}], tags:[{tags_list}] }} id: "{id}") '
+                "{ id name description type list tags } }"
+            )
+
+            response = self.graphql(mutation)
+            result = response.get("updatePreventList", {})
+            if not result:
+                raise JamfError("Failed to update prevent list")
+
             return result
-        except JamfError:
-            raise
+
+        except Exception as e:
+            error_msg = f"Unexpected error updating prevent list: {str(e)}"
+            self._log("error", error_msg)
+            raise JamfError(error_msg)
+
+    def list_prevent_lists(self) -> list[dict]:
+        """
+        List all prevent lists from Jamf Protect
+
+        Returns:
+            List of prevent lists
+
+        Raises:
+            JamfError: If request fails
+        """
+        try:
+            self._log("info", "Retrieving prevent lists")
+
+            query = "query {listPreventLists {items {id name description type list tags}}}"
+
+            response = self.graphql(query)
+            result = response.get("listPreventLists", {}).get("items", [])
+            return result
+        except Exception as e:
+            error_msg = f"Unexpected error retrieving prevent lists: {str(e)}"
+            self._log("error", error_msg)
+            raise JamfError(error_msg)
+
+    # Local validation helpers for prevent list values
+    def _is_sha1(self, s: str) -> bool:
+        return bool(re.fullmatch(r"^[A-Fa-f0-9]{40}$", str(s).strip()))
+
+    def _is_sha256(self, s: str) -> bool:
+        return bool(re.fullmatch(r"^[A-Fa-f0-9]{64}$", str(s).strip()))
+
+    def _is_team_id(self, s: str) -> bool:
+        # Apple Team ID is 10 uppercase alphanumeric characters
+        return bool(re.fullmatch(r"^[A-Z0-9]{10}$", str(s).strip().upper()))
+
+    def _is_signing_id(self, s: str) -> bool:
+        # Bundle identifier style: segments of [A-Za-z0-9-]+ separated by dots,
+        # must have at least one dot
+        # Disallow leading/trailing dots and consecutive dots
+        return bool(
+            re.fullmatch(
+                r"^[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)+$",
+                str(s).strip(),
+            )
+        )
+
+    def _validate_prevent_values(self, prevent_type: str, values: list[str]) -> None:
+        if prevent_type not in PROTECT_PREVENT_TYPE_MAP.values():
+            raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
+        invalid: list[tuple[str, str]] = []
+        for v in values or []:
+            if prevent_type == "FILEHASH":
+                if not (self._is_sha1(v) or self._is_sha256(v)):
+                    invalid.append((v, "not SHA-1 or SHA-256 hash"))
+            elif prevent_type == "CDHASH":
+                if not self._is_sha1(v):
+                    invalid.append((v, "not SHA-1 hash"))
+            elif prevent_type == "TEAMID":
+                if not self._is_team_id(v):
+                    invalid.append((
+                        v,
+                        "invalid Apple Team ID (expected 10 uppercase alphanumerics)",
+                    ))
+            elif prevent_type == "SIGNINGID":
+                if not self._is_signing_id(v):
+                    invalid.append((v, "invalid signing identifier"))
+
+        if invalid:
+            details = "; ".join([f"'{val}' ({reason})" for val, reason in invalid[:10]])
+            more = f" and {len(invalid) - 10} more" if len(invalid) > 10 else ""
+            raise JamfError(f"Invalid values for Prevent Type '{prevent_type}': {details}{more}")

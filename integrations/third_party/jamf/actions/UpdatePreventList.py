@@ -129,10 +129,8 @@ def main() -> NoReturn:
             raise Exception("No prevent lists found")
 
         prevent_list_match = None
-        for prevent_list in (
-            prevent_lists.get("data", {}).get("listPreventLists", {}).get("items", [])
-        ):
-            if prevent_list.get("name") == prevent_list_name:
+        for prevent_list in prevent_lists:
+            if prevent_list.get("name").lower() == prevent_list_name.lower():
                 prevent_list_match = prevent_list
                 break
 
@@ -140,6 +138,7 @@ def main() -> NoReturn:
             raise Exception(f"Prevent list with name '{prevent_list_name}' does not exist")
 
         prevent_list_match_id = prevent_list_match.get("id")
+        prevent_list_match_name = prevent_list_match.get("name")
         prevent_list_match_description = prevent_list_match.get("description")
         prevent_list_match_tags = prevent_list_match.get("tags")
         prevent_list_match_values = prevent_list_match.get("list")
@@ -173,7 +172,7 @@ def main() -> NoReturn:
         siemplify.LOGGER.info(f"Final values count: {len(values_list)}")
 
         result = jamf_protect_manager.update_prevent_list(
-            name=prevent_list_name,
+            name=prevent_list_match_name,
             description=prevent_list_description,
             prevent_type=prevent_type_input,
             values=values_list,
@@ -194,7 +193,7 @@ def main() -> NoReturn:
         )
 
         # Prepare comprehensive result
-        json_result = {"status": "success", "prevent_list": result.get("data", {}).get("updatePreventList", {})}
+        json_result = {"status": "success", "prevent_list": result}
 
         # Set JSON result
         siemplify.result.add_result_json(json_result)
