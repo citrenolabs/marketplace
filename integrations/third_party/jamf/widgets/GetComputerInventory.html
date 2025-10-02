@@ -454,10 +454,10 @@
             return html;
         }
 
-                /**
-         * Renders the General tab content
-         */
-         function renderGeneralTab(computerInfo) {
+        /**
+        * Renders the General tab content
+        */
+        function renderGeneralTab(computerInfo) {
             const general = computerInfo.general || {};
             const remoteManagement = general.remoteManagement || {};
             const extensionAttributes = general.extensionAttributes || [];
@@ -639,9 +639,9 @@
         }
 
         /**
-         * Renders the Hardware tab content
-         */
-         function renderHardwareTab(computerInfo) {
+        * Renders the Hardware tab content
+        */
+        function renderHardwareTab(computerInfo) {
             const hardware = computerInfo.hardware || {};
             
             return `
@@ -782,7 +782,7 @@
         /**
          * Renders the User & Location tab content
          */
-         function renderUserLocationTab(computerInfo) {
+        function renderUserLocationTab(computerInfo) {
             const userLocation = computerInfo.userAndLocation || {};
             
             return `
@@ -1397,6 +1397,70 @@
         }
 
         /**
+         * Creates a table for attachments
+         */
+        function createAttachmentsTable(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                return `<p class="text-themed-tertiary italic">No attachments data available.</p>`;
+            }
+
+            // Optional helper: pretty-print bytes
+            function formatBytes(bytes) {
+                if (typeof bytes !== 'number') return formatValue(bytes);
+                const units = ['B','KB','MB','GB','TB'];
+                let i = 0, v = bytes;
+                while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+                return `${v.toFixed(1)} ${units[i]}`;
+            }
+
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>File Type</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach(att => {
+                html += `
+                    <tr>
+                        <td>${formatValue(att.name)}</td>
+                        <td>${formatValue(att.fileType)}</td>
+                        <td>${att.size != null ? formatBytes(Number(att.size)) : formatValue(att.size)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            return html;
+        }
+
+        /**
+         * Renders the Attachments tab content
+         */
+        function renderAttachmentsTab(computerInfo) {
+            const attachments = computerInfo.attachments || [];
+            return `
+                <div class="space-y-6">
+                    <div class="card-primary rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 section-header">Attachments</h3>
+                        ${createAttachmentsTable(attachments)}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
          * Generic renderer for sections with minimal or unknown data structures
          */
         function renderGenericTab(computerInfo, sectionName, displayName) {
@@ -1443,10 +1507,10 @@
             `;
         }
 
-                /**
-         * Maps section names to their corresponding rendering functions and display names
-         */
-         const sectionMapping = {
+        /**
+        * Maps section names to their corresponding rendering functions and display names
+        */
+        const sectionMapping = {
             'GENERAL': { renderer: renderGeneralTab, displayName: 'General' },
             'HARDWARE': { renderer: renderHardwareTab, displayName: 'Hardware' },
             'USER_AND_LOCATION': { renderer: renderUserLocationTab, displayName: 'User & Location' },
@@ -1461,10 +1525,10 @@
             'CERTIFICATES': { renderer: renderCertificatesTab, displayName: 'Certificates' },
             'GROUP_MEMBERSHIPS': { renderer: renderGroupMembershipsTab, displayName: 'Group Memberships' },
             'EXTENSION_ATTRIBUTES': { renderer: renderExtensionAttributesTab, displayName: 'Extension Attributes' },
+            'ATTACHMENTS': { renderer: renderAttachmentsTab, displayName: 'Attachments' },
             // Generic sections that use the generic renderer
             'PRINTERS': { renderer: (info) => renderGenericTab(info, 'printers', 'Printers'), displayName: 'Printers' },
             'SERVICES': { renderer: (info) => renderGenericTab(info, 'services', 'Services'), displayName: 'Services' },
-            'ATTACHMENTS': { renderer: (info) => renderGenericTab(info, 'attachments', 'Attachments'), displayName: 'Attachments' },
             'PLUGINS': { renderer: (info) => renderGenericTab(info, 'plugins', 'Plugins'), displayName: 'Plugins' },
             'PACKAGE_RECEIPTS': { renderer: (info) => renderGenericTab(info, 'packageReceipts', 'Package Receipts'), displayName: 'Package Receipts' },
             'FONTS': { renderer: (info) => renderGenericTab(info, 'fonts', 'Fonts'), displayName: 'Fonts' },
