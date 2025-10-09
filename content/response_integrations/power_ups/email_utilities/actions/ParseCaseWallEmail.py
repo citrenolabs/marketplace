@@ -47,11 +47,10 @@ def json_serial(obj):
 def main():
     siemplify = SiemplifyAction()
 
-    status = EXECUTION_STATE_COMPLETED  # used to flag back to siemplify system, the action final status
-    output_message = ""  # human readable message, showed in UI as the action result
-    result_value = (
-        True  # Set a simple result value, used for playbook if\else and placeholders.
-    )
+    status = EXECUTION_STATE_COMPLETED
+    output_message = ""
+    result_value = True
+
     siemplify.script_name = "Parse Email"
     siemplify.LOGGER.info(f"Starting {siemplify.script_name}.")
 
@@ -71,7 +70,8 @@ def main():
 
     try:
         custom_regex = json.loads(custom_regex)
-    except:
+    except Exception as e:
+        siemplify.LOGGER.error(e)
         output_message += "\nFailed to load custom regex mappings."
         custom_regex = {}
 
@@ -130,6 +130,13 @@ def main():
             attachment = attached_email
         else:
             attachment = orig_email_attachment
+
+    if not attachment or "id" not in attachment:
+        output_message += "No EML attachments found on the case."
+        siemplify.LOGGER.info(
+            f"\n  status: {status}\n result_value: False\n output_message: {output_message}"
+        )
+        siemplify.end(output_message, False, status)
 
     attachment_record = siemplify.get_attachment(attachment["id"])
     attachment_name = f"{attachment['evidenceName']}{attachment['fileType']}"
@@ -197,7 +204,6 @@ def main():
             siemplify.update_entities(updated_entities)
     siemplify.result.add_json(attachment_name, parsed_email, "Email File")
 
-    # print(json.dumps({"parsed_emails": parsed_emails}, sort_keys=True, default=json_serial))
     siemplify.result.add_result_json(
         json.dumps(
             {"parsed_emails": parsed_emails},
