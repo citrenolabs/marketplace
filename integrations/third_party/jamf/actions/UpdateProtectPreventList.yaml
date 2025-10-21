@@ -1,8 +1,8 @@
-name: Update Prevent List
+name: Update Protect Prevent List
 integration_identifier: Jamf
 description: Update an existing prevent list in Jamf Protect to block specified indicators (hashes, domains, IPs)
 type: containment
-script: UpdatePreventList.py
+script: UpdateProtectPreventList.py
 timeout_seconds: 300
 parameters:
   - name: Prevent List Name

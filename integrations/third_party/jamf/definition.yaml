@@ -1,19 +1,19 @@
 identifier: Jamf
 name: Jamf
 parameters:
-    - name: API Root
+    - name: Jamf Pro API Root
       type: string
       description: 'Jamf Pro server URL (e.g., https://yourserver.jamfcloud.com)'
       is_mandatory: true
       default_value: https://yourServer.jamfcloud.com/
       integration_identifier: Jamf
-    - name: Client API ID
+    - name: Jamf Pro Client API ID
       type: string
       description: 'Client API ID for Jamf Pro API authentication'
       is_mandatory: true
       default_value: ClientAPIID
       integration_identifier: Jamf
-    - name: Client API Secret
+    - name: Jamf Pro Client API Secret
       type: password
       description: 'Client API Secret for Jamf Pro API authentication'
       is_mandatory: true
@@ -49,8 +49,8 @@ categories:
   - IT & Infrastructure
 svg_logo_path: resources/logo.svg
 image_path: resources/image.png
-description: Jamf Pro integration for computer and mobile device management and endpoint security. This integration enables device management, inventory retrieval, security actions, and configuration management for macOS computers and iOS/iPadOS mobile devices managed through Jamf Pro.
-version: 1.0
+description: Jamf integration for computer and mobile device management and endpoint security. This integration enables device management, inventory retrieval, security actions, and configuration management for macOS computers and iOS/iPadOS mobile devices managed through Jamf Pro. It also provides integration with Jamf Protect for endpoint security.
+version: 2.0
 actions:
   - Ping
   - ListComputerGroups
@@ -64,7 +64,7 @@ actions:
   - GetMobileDeviceInventory
   - RemoteLockMobileDevice
   - WipeMobileDevice
-  - UpdatePreventList
+  - UpdateProtectPreventList
 widgets:
   - GetDeviceInformation
   - GetComputerInventory

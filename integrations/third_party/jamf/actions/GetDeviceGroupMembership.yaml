@@ -7,7 +7,7 @@ timeout_seconds: 600
 parameters:
   - name: Group ID
     type: string
-    description: The ID of the group to retrieve membership for
+    description: The ID of the computer group to retrieve membership for
     is_mandatory: true
     default_value: ""
 dynamic_results_metadata:

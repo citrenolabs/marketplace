@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING
 
 from ScriptResult import EXECUTION_STATE_COMPLETED, EXECUTION_STATE_FAILED
@@ -11,7 +10,7 @@ from TIPCommon.extraction import extract_action_param, extract_configuration_par
 from ..core.constants import (
     INTEGRATION_NAME,
     PROTECT_PREVENT_TYPE_MAP,
-    UPDATE_PREVENT_LIST_SCRIPT_NAME,
+    UPDATE_PROTECT_PREVENT_LIST_SCRIPT_NAME,
 )
 from ..core.exceptions import JamfError
 from ..core.JamfProtectManager import JamfProtectManager
@@ -29,7 +28,7 @@ def main() -> NoReturn:
     Supports multiple values as a comma-separated list.
     """
     siemplify = SiemplifyAction()
-    siemplify.script_name = UPDATE_PREVENT_LIST_SCRIPT_NAME
+    siemplify.script_name = UPDATE_PROTECT_PREVENT_LIST_SCRIPT_NAME
     siemplify.LOGGER.info("----------------- Main - Param Init -----------------")
 
     status = EXECUTION_STATE_COMPLETED
@@ -126,7 +125,7 @@ def main() -> NoReturn:
 
         prevent_lists = jamf_protect_manager.list_prevent_lists()
         if not prevent_lists:
-            raise Exception("No prevent lists found")
+            raise JamfError("No prevent lists found")
 
         prevent_list_match = None
         for prevent_list in prevent_lists:
@@ -135,7 +134,7 @@ def main() -> NoReturn:
                 break
 
         if not prevent_list_match:
-            raise Exception(f"Prevent list with name '{prevent_list_name}' does not exist")
+            raise JamfError(f"Prevent list with name '{prevent_list_name}' does not exist")
 
         prevent_list_match_id = prevent_list_match.get("id")
         prevent_list_match_name = prevent_list_match.get("name")
@@ -147,12 +146,12 @@ def main() -> NoReturn:
         prevent_type_input = PROTECT_PREVENT_TYPE_MAP.get(prevent_type)
 
         if prevent_type_input != prevent_list_match_type:
-            raise Exception("Prevent type cannot be changed")
+            raise JamfError("Prevent type cannot be changed")
         if not prevent_list_description:
             prevent_list_description = prevent_list_match_description
 
         # Validate values per prevent type
-        validate_prevent_values(prevent_type_input, values_list)
+        jamf_protect_manager.validate_prevent_values(prevent_type_input, values_list)
 
         # Merge tags with existing (preserve order, dedupe)
         if tags_list:
@@ -162,16 +161,16 @@ def main() -> NoReturn:
             if prevent_list_match_tags:
                 tags_list = prevent_list_match_tags
             else:
-                raise Exception("At least one tag must be provided")
+                raise JamfError("At least one tag must be provided")
         siemplify.LOGGER.info(f"Final tags count: {len(tags_list)}")
 
         if not values_list:
-            raise Exception("At least one value must be provided")
+            raise JamfError("At least one value must be provided")
         else:
             values_list = list(dict.fromkeys((prevent_list_match_values or []) + values_list))
         siemplify.LOGGER.info(f"Final values count: {len(values_list)}")
 
-        result = jamf_protect_manager.update_prevent_list(
+        result = jamf_protect_manager.update_protect_prevent_list(
             name=prevent_list_match_name,
             description=prevent_list_description,
             prevent_type=prevent_type_input,
@@ -223,54 +222,6 @@ def main() -> NoReturn:
     siemplify.LOGGER.info(f"Output: {output_message}")
 
     siemplify.end(output_message, result_value, status)
-
-
-# Local validation helpers for prevent list values
-def _is_sha1(s: str) -> bool:
-    return bool(re.fullmatch(r"^[A-Fa-f0-9]{40}$", str(s).strip()))
-
-
-def _is_sha256(s: str) -> bool:
-    return bool(re.fullmatch(r"^[A-Fa-f0-9]{64}$", str(s).strip()))
-
-
-def _is_team_id(s: str) -> bool:
-    # Apple Team ID is 10 uppercase alphanumeric characters
-    return bool(re.fullmatch(r"^[A-Z0-9]{10}$", str(s).strip()))
-
-
-def _is_signing_id(s: str) -> bool:
-    # Bundle identifier style: segments of [A-Za-z0-9-]+ separated by dots,
-    # must have at least one dot
-    # Disallow leading/trailing dots and consecutive dots
-    return bool(
-        re.fullmatch(
-            r"^[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)+$",
-            str(s).strip(),
-        )
-    )
-
-
-def validate_prevent_values(pt: str, values: list[str]) -> None:
-    invalid: list[tuple[str, str]] = []
-    for v in values or []:
-        if pt == "FILEHASH":
-            if not (_is_sha1(v) or _is_sha256(v)):
-                invalid.append((v, "not SHA-1 or SHA-256 hash"))
-        elif pt == "CDHASH":
-            if not _is_sha1(v):
-                invalid.append((v, "not SHA-1 hash"))
-        elif pt == "TEAMID":
-            if not _is_team_id(v):
-                invalid.append((v, "invalid Apple Team ID (expected 10 uppercase alphanumerics)"))
-        elif pt == "SIGNINGID":
-            if not _is_signing_id(v):
-                invalid.append((v, "invalid signing identifier"))
-
-    if invalid:
-        details = "; ".join([f"'{val}' ({reason})" for val, reason in invalid[:10]])
-        more = f" and {len(invalid) - 10} more" if len(invalid) > 10 else ""
-        raise Exception(f"Invalid values for Prevent Type '{pt}': {details}{more}")
 
 
 if __name__ == "__main__":

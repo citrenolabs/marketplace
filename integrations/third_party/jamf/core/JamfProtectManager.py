@@ -179,6 +179,14 @@ class JamfProtectManager:
                 self._log("info", "Successfully executed GraphQL query")
 
                 return result.get("data")
+            elif response.status_code == 401:
+                error_msg = "Authentication failed - invalid or expired token"
+                self._log("error", error_msg)
+                raise JamfError(error_msg)
+            elif response.status_code == 403:
+                error_msg = "Insufficient permissions for GraphQL request"
+                self._log("error", error_msg)
+                raise JamfError(error_msg)
             else:
                 error_msg = (
                     f"Failed to execute GraphQL query. Status: {response.status_code}, "
@@ -187,12 +195,15 @@ class JamfProtectManager:
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
+        except JamfError:
+            # Preserve original JamfError exceptions (matches JamfManager pattern)
+            raise
         except Exception as e:
             error_msg = f"Unexpected error during GraphQL request: {str(e)}"
             self._log("error", error_msg)
             raise JamfError(error_msg)
 
-    def update_prevent_list(
+    def update_protect_prevent_list(
         self,
         name: str,
         description: str | None,
@@ -219,8 +230,8 @@ class JamfProtectManager:
             JamfError: If the API request fails
         """
         try:
-            if not name or not name.strip():
-                raise JamfError("Prevent list name is required")
+            # Sanitize and validate inputs
+            sanitized_name = self._sanitize_prevent_list_name(name)
             if not values:
                 raise JamfError("At least one value must be provided for the prevent list")
             if not tags:
@@ -228,13 +239,13 @@ class JamfProtectManager:
             if not prevent_type:
                 raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
 
-            self._validate_prevent_values(prevent_type, values)
+            self.validate_prevent_values(prevent_type, values)
 
             # Helper to escape GraphQL string values
             def _gql_escape(s: str) -> str:
                 return (s or "").replace("\\", "\\\\").replace('"', '\\"')
 
-            name_esc = _gql_escape(name)
+            name_esc = _gql_escape(sanitized_name)
             desc_esc = _gql_escape(description or "")
             values_list = ",".join([f'"{_gql_escape(v)}"' for v in values])
             tags_list = ",".join([f'"{_gql_escape(t)}"' for t in (tags or [])])
@@ -253,6 +264,9 @@ class JamfProtectManager:
 
             return result
 
+        except JamfError:
+            # Preserve original JamfError exceptions
+            raise
         except Exception as e:
             error_msg = f"Unexpected error updating prevent list: {str(e)}"
             self._log("error", error_msg)
@@ -276,6 +290,9 @@ class JamfProtectManager:
             response = self.graphql(query)
             result = response.get("listPreventLists", {}).get("items", [])
             return result
+        except JamfError:
+            # Preserve original JamfError exceptions
+            raise
         except Exception as e:
             error_msg = f"Unexpected error retrieving prevent lists: {str(e)}"
             self._log("error", error_msg)
@@ -303,7 +320,7 @@ class JamfProtectManager:
             )
         )
 
-    def _validate_prevent_values(self, prevent_type: str, values: list[str]) -> None:
+    def validate_prevent_values(self, prevent_type: str, values: list[str]) -> None:
         if prevent_type not in PROTECT_PREVENT_TYPE_MAP.values():
             raise JamfError(f"Unsupported Prevent Type: {prevent_type}")
         invalid: list[tuple[str, str]] = []
@@ -328,3 +345,19 @@ class JamfProtectManager:
             details = "; ".join([f"'{val}' ({reason})" for val, reason in invalid[:10]])
             more = f" and {len(invalid) - 10} more" if len(invalid) > 10 else ""
             raise JamfError(f"Invalid values for Prevent Type '{prevent_type}': {details}{more}")
+
+    def _sanitize_prevent_list_name(self, name: str) -> str:
+        if not name or not isinstance(name, str):
+            raise JamfError("Prevent list name must be a non-empty string")
+
+        sanitized = name.strip()
+
+        if not sanitized:
+            raise JamfError("Prevent list name cannot be empty or only whitespace")
+        if len(sanitized) > 255:
+            raise JamfError("Prevent list name cannot exceed 255 characters")
+
+        # Remove only control characters that would break GraphQL
+        sanitized = "".join(c for c in sanitized if c.isprintable())
+
+        return sanitized
