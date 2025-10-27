@@ -1,0 +1,21 @@
+creator: shakedalontest
+default_result_value: ''
+description: Turns light off by light ID.
+dynamic_results_metadata:
+-   result_example_path: resources/TurnOffLight_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: PhilipsHUE
+name: Turn Off Light
+parameters:
+-   default_value: '1'
+    description: 'ID of the light you want to turn off.
+
+
+        How to view hue lights:
+
+        https://developers.meethue.com/develop/get-started-2/#turning-a-light-on-and-off'
+    is_mandatory: true
+    name: Light ID
+    type: string
+script_result_name: ScriptResult

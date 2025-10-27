@@ -26,6 +26,8 @@ import mp.core.config
 import mp.core.file_utils
 from mp.build_project.marketplace import Marketplace
 from mp.core.custom_types import RepositoryType
+from mp.core.utils import ensure_valid_list
+from mp.telemetry import track_command
 
 from .data_models import FullReport, ValidationResults
 from .display import display_validation_reports
@@ -45,7 +47,7 @@ POST_BUILD: str = "Post-Build"
 ValidationFn: TypeAlias = Callable[[pathlib.Path], ValidationResults]
 
 
-__all__: list[str] = ["Configurations", "app"]
+__all__: list[str] = ["Configurations", "app", "validate"]
 app: typer.Typer = typer.Typer()
 
 
@@ -85,6 +87,7 @@ class ValidateParams:
 
 
 @app.command(help="Validate the marketplace")
+@track_command
 def validate(  # noqa: PLR0913
     repository: Annotated[
         list[RepositoryType],
@@ -150,14 +153,24 @@ def validate(  # noqa: PLR0913
             typer.Exit: If one of the validations during the run failed
 
     """
+    repository = ensure_valid_list(repository)
+    integration = ensure_valid_list(integration)
+    group = ensure_valid_list(group)
+
     run_params: RuntimeParams = mp.core.config.RuntimeParams(quiet, verbose)
     run_params.set_in_config()
 
     params: ValidateParams = ValidateParams(repository, integration, group)
     params.validate()
 
-    commercial_mp: Marketplace = Marketplace(mp.core.file_utils.get_commercial_path())
-    community_mp: Marketplace = Marketplace(mp.core.file_utils.get_community_path())
+    commercial_path: pathlib.Path = mp.core.file_utils.get_integrations_path(
+        RepositoryType.COMMERCIAL
+    )
+    community_path: pathlib.Path = mp.core.file_utils.get_integrations_path(
+        RepositoryType.COMMUNITY
+    )
+    commercial_mp: Marketplace = Marketplace(commercial_path)
+    community_mp: Marketplace = Marketplace(community_path)
 
     run_configurations: Configurations = Configurations(only_pre_build=only_pre_build)
 
@@ -167,13 +180,13 @@ def validate(  # noqa: PLR0913
 
     if integration:
         commercial_output = _validate_integrations(
-            get_marketplace_paths_from_names(integration, commercial_mp.path),
+            get_marketplace_paths_from_names(integration, commercial_mp.paths),
             commercial_mp,
             run_configurations,
         )
 
         community_output = _validate_integrations(
-            get_marketplace_paths_from_names(integration, community_mp.path),
+            get_marketplace_paths_from_names(integration, community_mp.paths),
             community_mp,
             run_configurations,
         )
@@ -182,13 +195,13 @@ def validate(  # noqa: PLR0913
 
     elif group:
         commercial_output = _validate_groups(
-            get_marketplace_paths_from_names(group, commercial_mp.path),
+            get_marketplace_paths_from_names(group, commercial_mp.paths),
             commercial_mp,
             run_configurations,
         )
 
         community_output = _validate_groups(
-            get_marketplace_paths_from_names(group, community_mp.path),
+            get_marketplace_paths_from_names(group, community_mp.paths),
             community_mp,
             run_configurations,
         )
@@ -207,14 +220,13 @@ def validate(  # noqa: PLR0913
         validations_output = _combine_results(commercial_output, community_output)
 
     display_validation_reports(validations_output)
-
     if _should_fail_program(validations_output):
         raise typer.Exit(code=1)
 
 
 def _validate_repo(marketplace: Marketplace, configurations: Configurations) -> FullReport:
     products: Products[set[pathlib.Path]] = (
-        mp.core.file_utils.get_integrations_and_groups_from_paths(marketplace.path)
+        mp.core.file_utils.get_integrations_and_groups_from_paths(*marketplace.paths)
     )
 
     validation_outputs: FullReport

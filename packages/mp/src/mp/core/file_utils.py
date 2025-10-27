@@ -21,62 +21,127 @@ from __future__ import annotations
 
 import base64
 import dataclasses
+import json
 import pathlib
 import shutil
 from typing import TYPE_CHECKING, Any
 
 import yaml
 
+import mp.core.constants
+
 from . import config, constants
-from .custom_types import ManagerName, Products
+from .custom_types import JsonString, ManagerName, Products
 from .validators import validate_png_content, validate_svg_content
 
 if TYPE_CHECKING:
     import pathlib
     from collections.abc import Callable, Mapping, Sequence
 
-
 VALID_REPEATED_FILES: set[str] = {"__init__.py"}
 
 
-def get_community_path() -> pathlib.Path:
-    """Get the community integrations' path.
+def get_integrations_path(
+    integrations_classification: mp.core.custom_types.RepositoryType,
+) -> pathlib.Path:
+    """Get a marketplace integrations' path.
+
+    Args:
+        integrations_classification: the name of the marketplace
 
     Returns:
-        The community integrations' directory path
+        The marketplace's integrations' directory path
 
     """
-    return get_integrations_path() / constants.COMMUNITY_DIR_NAME
+    return create_or_get_integrations_path() / integrations_classification.value
 
 
-def get_commercial_path() -> pathlib.Path:
-    """Get the commercial integrations' path.
+def create_or_get_integrations_path() -> pathlib.Path:
+    """Get the content/integrations path.
 
     Returns:
-        The commercial integrations' directory path
+        The content/integrations directory path
 
     """
-    return get_integrations_path() / constants.COMMERCIAL_DIR_NAME
+    return create_dir_if_not_exists(create_or_get_content_dir() / constants.INTEGRATIONS_DIR_NAME)
 
 
-def get_integrations_path() -> pathlib.Path:
-    """Get the integrations' path.
+def get_all_integrations_paths(integrations_classification: str) -> list[pathlib.Path]:
+    """Get all marketplace integrations sub-dirs paths.
+
+    Args:
+        integrations_classification: the name of the marketplace
 
     Returns:
-        The integrations' directory path
+        The marketplace's integrations' directories paths
 
     """
-    return config.get_marketplace_path() / constants.INTEGRATIONS_DIR_NAME
+    marketplace_dir_names: tuple[str, ...] = constants.INTEGRATIONS_DIRS_NAMES_DICT[
+        integrations_classification
+    ]
+    return [create_or_get_integrations_path() / dir_name for dir_name in marketplace_dir_names]
 
 
-def get_out_integrations_path() -> pathlib.Path:
-    """Get the out/integrations' path.
+def create_or_get_integrations_dir() -> pathlib.Path:
+    """Get the content path.
+
+    If the directory doesn't exist, it creates it
 
     Returns:
-        The out/integrations' directory path
+        The root/content/integrations directory path
 
     """
-    return config.get_marketplace_path() / constants.OUT_DIR_NAME / constants.INTEGRATIONS_DIR_NAME
+    return create_dir_if_not_exists(create_or_get_content_dir() / constants.INTEGRATIONS_DIR_NAME)
+
+
+def create_or_get_content_dir() -> pathlib.Path:
+    """Get the content path.
+
+    If the directory doesn't exist, it creates it
+
+    Returns:
+        The root/content/integrations directory path
+
+    """
+    return create_dir_if_not_exists(config.get_marketplace_path() / constants.CONTENT_DIR_NAME)
+
+
+def create_or_get_out_integrations_dir() -> pathlib.Path:
+    """Get the out/content/integrations/ path.
+
+    If the directory doesn't exist, it creates it
+
+    Returns:
+        The out/content/integrations directory path
+
+    """
+    return create_dir_if_not_exists(
+        create_or_get_out_contents_dir() / constants.OUT_INTEGRATIONS_DIR_NAME
+    )
+
+
+def create_or_get_out_contents_dir() -> pathlib.Path:
+    """Get the out/content/ path.
+
+    If the directory doesn't exist, it creates it
+
+    Returns:
+        The out/content/ directory path
+
+    """
+    return create_dir_if_not_exists(create_or_get_out_dir() / constants.CONTENT_DIR_NAME)
+
+
+def create_or_get_out_dir() -> pathlib.Path:
+    """Get the out/ path.
+
+    If the directory doesn't exist, it creates it
+
+    Returns:
+        The out/ directory path
+
+    """
+    return create_dir_if_not_exists(config.get_marketplace_path() / constants.OUT_DIR_NAME)
 
 
 def discover_core_modules(path: pathlib.Path) -> list[ManagerName]:
@@ -107,9 +172,7 @@ def discover_core_modules(path: pathlib.Path) -> list[ManagerName]:
     )
 
 
-def get_integrations_and_groups_from_paths(
-    *paths: pathlib.Path,
-) -> Products[set[pathlib.Path]]:
+def get_integrations_and_groups_from_paths(*paths: pathlib.Path) -> Products[set[pathlib.Path]]:
     """Get all integrations and integration groups paths from the provided paths.
 
     Args:
@@ -154,10 +217,7 @@ def is_integration(path: pathlib.Path, *, group: str = "") -> bool:
 
     """
     parents: set[str] = {p.name for p in (path, *path.parents)}
-    valid_base_dirs: set[str] = {
-        constants.COMMUNITY_DIR_NAME,
-        constants.COMMERCIAL_DIR_NAME,
-    }
+    valid_base_dirs: set[str] = set(mp.core.constants.INTEGRATIONS_TYPES)
 
     if group:
         valid_base_dirs.add(group)
@@ -436,7 +496,11 @@ def is_commercial_integration(path: pathlib.Path) -> bool:
             otherwise.
 
     """
-    return is_integration(path) and path.parent.name == constants.COMMERCIAL_DIR_NAME
+    return (
+        is_integration(path)
+        and path.parent.name
+        in constants.INTEGRATIONS_DIRS_NAMES_DICT[constants.COMMERCIAL_DIR_NAME]
+    )
 
 
 def base64_to_png_file(image_data: bytes, output_path: pathlib.Path) -> None:
@@ -496,3 +560,69 @@ def png_path_to_bytes(file_path: pathlib.Path) -> str | None:
     if file_path.exists():
         return base64.b64encode(validate_png_content(file_path)).decode("utf-8")
     return None
+
+
+def read_and_validate_json_file(json_path: pathlib.Path) -> JsonString:
+    """Read the text content of a file and validates that it's valid JSON.
+
+    Raises:
+        ValueError: If the file doesn't exist or is an invalid JSON.
+
+    Returns:
+        The decoded text content of the JSON file if exists.
+
+    """
+    try:
+        content: JsonString = json_path.read_text(encoding="utf-8")
+        json.loads(content)
+    except json.JSONDecodeError as e:
+        msg = f"Invalid JSON content in file: {json_path}"
+        raise ValueError(msg) from e
+    except FileNotFoundError as e:
+        msg = f"File {json_path} does not exist"
+        raise ValueError(msg) from e
+    else:
+        return content
+
+
+def write_str_to_json_file(json_path: pathlib.Path, json_content: JsonString) -> None:
+    """Write a JSON string to a file."""
+    with json_path.open("w", encoding="utf-8") as f_json:
+        json.dump(json_content, f_json, indent=4)
+
+
+def load_yaml_file(path: pathlib.Path) -> dict[str, Any]:
+    """Read a file and loads its content as YAML.
+
+    Raises:
+        ValueError: If the file doesn't exist or is an invalid YAML.
+
+    Returns:
+        The decoded YAML content of the YAML file if exists.
+
+    """
+    try:
+        content = path.read_text(encoding="utf-8")
+        return yaml.safe_load(content)
+    except yaml.YAMLError as e:
+        msg = f"Failed to load or parse YAML from file: {path}"
+        raise ValueError(msg) from e
+    except FileNotFoundError as e:
+        msg = f"File {path} does not exist"
+        raise ValueError(msg) from e
+
+
+def create_dir_if_not_exists(p: pathlib.Path, /) -> pathlib.Path:
+    """Create the provided path as a directory if it doesn't exist.
+
+    Doesn't raise any error if the dir already exists
+
+    Args:
+        p: The dir's path to create if it doesn't exist
+
+    Returns:
+        The created path
+
+    """
+    p.mkdir(exist_ok=True)
+    return p

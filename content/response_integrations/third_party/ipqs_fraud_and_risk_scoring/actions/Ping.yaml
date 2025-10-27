@@ -1,0 +1,11 @@
+creator: IPQS
+default_result_value: ''
+description: This action will test the connectivity to the IPQS server.
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: IPQS Fraud and Risk Scoring
+name: Ping
+parameters: []
+script_result_name: ScriptResult

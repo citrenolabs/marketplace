@@ -1,0 +1,39 @@
+creator: shakedalontest
+default_result_value: ''
+description: Fetch analytics for leaderboards in a given date range
+dynamic_results_metadata:
+-   result_example_path: resources/GetALeaderboardAnalytics_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: VanillaForums
+name: Get a Leaderboard Analytics
+parameters:
+-   default_value: top-posters, top-discussion-starters
+    description: "Leaderboards seperated by comma. \nFor example: top-posters, top-discussion-starters"
+    is_mandatory: true
+    name: Leaderboards
+    type: string
+-   default_value: '2021-12-30'
+    description: 'End of the time frame
+
+        Syntax:
+
+        {yyyy}-{mm}-{dd}'
+    is_mandatory: true
+    name: To
+    type: string
+-   default_value: '10'
+    description: The max number of rows to return for each board
+    is_mandatory: true
+    name: Amount Limit
+    type: string
+-   default_value: '2021-01-01'
+    description: 'Start of the time frame
+
+        Syntax:
+
+        {yyyy}-{mm}-{dd}'
+    is_mandatory: true
+    name: From
+    type: string
+script_result_name: ScriptResult

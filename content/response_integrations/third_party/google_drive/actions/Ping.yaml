@@ -1,0 +1,11 @@
+creator: Admin
+default_result_value: ''
+description: Check Connectivity with Google Drive
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Google Drive
+name: Ping
+parameters: []
+script_result_name: ScriptResult

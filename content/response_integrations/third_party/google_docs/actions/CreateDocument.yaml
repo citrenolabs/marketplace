@@ -1,0 +1,35 @@
+creator: Admin
+default_result_value: ''
+description: Creates a new document and determining who to share the doc with
+dynamic_results_metadata:
+-   result_example_path: resources/CreateDocument_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Google Docs
+name: Create Document
+parameters:
+-   default_value: New Document
+    description: 'The document title of the document you would like to create. '
+    is_mandatory: true
+    name: Title
+    type: string
+-   default_value: reader
+    description: '"Owner"- allows to make any changes to the document
+
+        "Reader"- allows to open and view the document
+
+        "Writer"- allows to leave comments in the document'
+    is_mandatory: true
+    name: Role
+    optional_values:
+    - owner
+    - writer
+    - reader
+    type: ddl
+-   default_value: email_1@gmail.com;email_2@gmail.com
+    description: 'Email address of the person you would like to add permission to
+        the document. You can add multiple emails by adding ";" as a separator. '
+    is_mandatory: true
+    name: Emails
+    type: string
+script_result_name: ScriptResult

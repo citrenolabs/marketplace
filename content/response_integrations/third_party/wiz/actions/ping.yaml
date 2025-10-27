@@ -1,0 +1,6 @@
+creator: admin
+description: Use the Ping action to test the connectivity to Wiz.
+dynamic_results_metadata: []
+integration_identifier: Wiz
+name: Ping
+parameters: []

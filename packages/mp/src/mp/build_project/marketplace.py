@@ -33,7 +33,6 @@ import rich
 import mp.core.config
 import mp.core.constants
 import mp.core.file_utils
-import mp.core.unix
 import mp.core.utils
 from mp.core.data_models.integration import BuiltFullDetails, BuiltIntegration, Integration
 
@@ -54,31 +53,29 @@ class Marketplace:
         """Class constructor.
 
         Args:
-            integrations_dir: The path to a marketplace - where folders of integrations
+            integrations_dir: The path to a marketplace's integrations folders
                 and groups exist
 
         """
-        self.path: pathlib.Path = integrations_dir
-        self.path.mkdir(exist_ok=True)
+        self.name: str = integrations_dir.name
+        self.paths: list[pathlib.Path] = mp.core.file_utils.get_all_integrations_paths(self.name)
 
-        mp_path: pathlib.Path = mp.core.config.get_marketplace_path()
-        out_path: pathlib.Path = mp_path / mp.core.constants.OUT_DIR_NAME
-        out_path.mkdir(exist_ok=True)
+        for dir_name in self.paths:
+            dir_name.mkdir(exist_ok=True, parents=True)
 
-        self.out_path: pathlib.Path = out_path / mp.core.constants.OUT_INTEGRATIONS_DIR_NAME
-        self.out_path.mkdir(exist_ok=True)
-
-        self.out_path /= integrations_dir.name
-        self.out_path.mkdir(exist_ok=True)
+        self.out_dir: pathlib.Path = (
+            mp.core.file_utils.create_or_get_out_integrations_dir() / self.name
+        )
+        self.out_dir.mkdir(exist_ok=True)
 
     def write_marketplace_json(self) -> None:
         """Write the marketplace JSON file to the marketplace's out path."""
-        write_marketplace_json(self.out_path)
+        write_marketplace_json(self.out_dir)
 
     def build(self) -> None:
         """Build all integrations and groups in the marketplace."""
         products: Products[set[pathlib.Path]] = (
-            mp.core.file_utils.get_integrations_and_groups_from_paths(self.path)
+            mp.core.file_utils.get_integrations_and_groups_from_paths(*self.paths)
         )
         self.build_groups(products.groups)
         self.build_integrations(products.integrations)
@@ -150,11 +147,11 @@ class Marketplace:
 
         rich.print(f"Integration {integration_path.name} is not built")
         integration: Integration = Integration.from_non_built_path(integration_path)
-        mp.core.file_utils.recreate_dir(self.out_path / integration.identifier)
+        mp.core.file_utils.recreate_dir(self.out_dir / integration.identifier)
         return integration
 
     def _prepare_built_integration_for_build(self, integration_path: pathlib.Path) -> None:
-        integration_out_path: pathlib.Path = self.out_path / integration_path.name
+        integration_out_path: pathlib.Path = self.out_dir / integration_path.name
         mp.core.file_utils.recreate_dir(integration_out_path)
         shutil.copytree(integration_path, integration_out_path, dirs_exist_ok=True)
 
@@ -164,7 +161,7 @@ class Marketplace:
         integration_path: pathlib.Path,
     ) -> None:
         rich.print(f"---------- Building {integration_path.stem} ----------")
-        integration_out_path: pathlib.Path = self.out_path / integration.identifier
+        integration_out_path: pathlib.Path = self.out_dir / integration.identifier
         integration_out_path.mkdir(exist_ok=True)
 
         built: BuiltIntegration = integration.to_built()
@@ -176,7 +173,7 @@ class Marketplace:
     def _remove_project_files_from_built_out_path(self, integration_id: str) -> None:
         rich.print("Removing unneeded files from out path")
         self._remove_project_files_from_out_path(integration_id)
-        integration: pathlib.Path = self.out_path / integration_id
+        integration: pathlib.Path = self.out_dir / integration_id
         mp.core.file_utils.remove_paths_if_exists(
             integration / mp.core.constants.TESTS_DIR,
             integration / mp.core.constants.PROJECT_FILE,
@@ -224,7 +221,7 @@ class Marketplace:
             raise FileNotFoundError(msg)
 
         out_name: str = mp.core.utils.str_to_snake_case(integration_path.name)
-        integration_out_path: pathlib.Path = self.out_path / out_name
+        integration_out_path: pathlib.Path = self.out_dir / out_name
         integration_out_path.mkdir(exist_ok=True)
         self._deconstruct_integration(integration_path, integration_out_path)
         self._remove_project_files_from_out_path(out_name)
@@ -253,7 +250,7 @@ class Marketplace:
         self._init_integration_project(di)
 
     def _init_integration_project(self, di: DeconstructIntegration) -> None:
-        integration_out_path: pathlib.Path = self.out_path / mp.core.utils.str_to_snake_case(
+        integration_out_path: pathlib.Path = self.out_dir / mp.core.utils.str_to_snake_case(
             di.path.name
         )
         proj: pathlib.Path = di.path / mp.core.constants.PROJECT_FILE
@@ -266,7 +263,7 @@ class Marketplace:
             di.initiate_project()
 
     def _remove_project_files_from_out_path(self, integration_name: str) -> None:
-        integration: pathlib.Path = self.out_path / integration_name
+        integration: pathlib.Path = self.out_dir / integration_name
         mp.core.file_utils.remove_paths_if_exists(
             integration / mp.core.constants.REQUIREMENTS_FILE,
             integration / mp.core.constants.README_FILE,

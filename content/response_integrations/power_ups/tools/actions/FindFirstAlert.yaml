@@ -1,0 +1,11 @@
+creator: Robert
+default_result_value: ''
+description: The action will return the identifier of the first alert in a given case
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Tools
+name: Find First Alert
+parameters: []
+script_result_name: ScriptResult

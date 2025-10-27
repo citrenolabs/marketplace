@@ -1,0 +1,16 @@
+creator: Admin
+default_result_value: ''
+description: Download the PCAP file for the given detection ID.
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: VectraQUX
+name: Download PCAP
+parameters:
+-   default_value: ' '
+    description: Detection ID to get PCAP file
+    is_mandatory: true
+    name: Detection ID
+    type: string
+script_result_name: ScriptResult

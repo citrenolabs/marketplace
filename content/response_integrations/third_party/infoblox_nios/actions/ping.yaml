@@ -1,0 +1,8 @@
+creator: Admin
+default_result_value: ''
+description: Use the Ping action to test the connectivity to API Service.
+dynamic_results_metadata: []
+integration_identifier: InfobloxNIOS
+name: Ping
+parameters: []
+script_result_name: ScriptResult

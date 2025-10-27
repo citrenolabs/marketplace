@@ -1,0 +1,22 @@
+creator: daniel.harvey
+default_result_value: ''
+description: Allow a user to respond to an approval request, and allow or deny the
+    request.
+dynamic_results_metadata:
+-   result_example_path: resources/ApprovalResponse_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Workflow Tools
+name: Approval Response
+parameters:
+-   default_value: 'false'
+    description: Approval managers response to request
+    is_mandatory: false
+    name: Action Approved
+    type: boolean
+-   default_value: ''
+    description: Please enter any relevant notes to be added to the case.
+    is_mandatory: false
+    name: Response Comments
+    type: string
+script_result_name: ApprovalResult

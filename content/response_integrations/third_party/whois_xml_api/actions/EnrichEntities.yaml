@@ -1,0 +1,12 @@
+creator: Yoav Tal
+default_result_value: ''
+description: Adds Enrichment data extracted from whois XML API product and presents
+    it in the Entity Explorer
+dynamic_results_metadata:
+-   result_example_path: resources/EnrichEntities_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: WHOIS XML API
+name: Enrich Entities
+parameters: []
+script_result_name: ScriptResult

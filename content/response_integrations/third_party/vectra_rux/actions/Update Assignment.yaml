@@ -1,0 +1,29 @@
+creator: Admin
+default_result_value: ''
+description: Updates the assigned user in the assignment for the given entity.
+dynamic_results_metadata:
+-   result_example_path: resources/Update Assignment_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: VectraRUX
+name: Update Assignment
+parameters:
+-   default_value: ' N/A'
+    description: Entity ID of assignment to update
+    is_mandatory: true
+    name: Entity ID
+    type: string
+-   default_value: ''
+    description: Entity Type of entity
+    is_mandatory: true
+    name: Entity Type
+    optional_values:
+    - Account
+    - Host
+    type: ddl
+-   default_value: ' N/A'
+    description: User ID to assign assignment to that user
+    is_mandatory: true
+    name: User ID
+    type: string
+script_result_name: ScriptResult

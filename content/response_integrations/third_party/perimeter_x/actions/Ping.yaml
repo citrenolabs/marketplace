@@ -1,0 +1,12 @@
+creator: Admin
+default_result_value: ''
+description: The Ping action is used by Siemplify to test connectivity to slack once
+    you have configured a connector.
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: false
+integration_identifier: PerimeterX
+name: Ping
+parameters: []
+script_result_name: ScriptResult

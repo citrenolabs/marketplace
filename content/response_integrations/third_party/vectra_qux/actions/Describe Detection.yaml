@@ -1,0 +1,16 @@
+creator: Admin
+default_result_value: ''
+description: Show all the details of a detection for the given ID.
+dynamic_results_metadata:
+-   result_example_path: resources/Describe Detection_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: VectraQUX
+name: Describe Detection
+parameters:
+-   default_value: '0'
+    description: Unique detection ID to get detection
+    is_mandatory: true
+    name: Detection ID
+    type: string
+script_result_name: ScriptResult

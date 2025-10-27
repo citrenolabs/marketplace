@@ -1,0 +1,17 @@
+creator: daniel.harvey
+default_result_value: ''
+description: This method retrieves the list of groups under a specified group.
+dynamic_results_metadata:
+-   result_example_path: resources/GetCustomGroupsList_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Bitdefender GravityZone
+name: Get Custom Groups List
+parameters:
+-   default_value: ''
+    description: Parent group ID for which the child groups will be listed. 'Computers
+        and Groups' and 'Deleted' groups are returned if the passed parameter is null.
+    is_mandatory: false
+    name: Parent ID
+    type: string
+script_result_name: ScriptResult

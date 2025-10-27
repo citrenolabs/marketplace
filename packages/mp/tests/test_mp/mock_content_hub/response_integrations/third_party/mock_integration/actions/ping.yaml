@@ -1,0 +1,14 @@
+creator: admin
+description: This action will do something.
+dynamic_results_metadata:
+-   result_example_path: resources/ping_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: MockIntegration
+name: Mock Integration Action
+parameters:
+-   default_value: ''
+    description: A Description.
+    is_mandatory: true
+    name: API Root
+    type: string

@@ -1,0 +1,40 @@
+creator: Admin
+default_result_value: ''
+description: Adds a mail exchange override rule to an RPZ.
+dynamic_results_metadata:
+-   result_example_path: resources/create_rpz_mx_rule_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: InfobloxNIOS
+name: Create RPZ MX Rule
+parameters:
+-   default_value: ''
+    description: Specify the name of the rule.
+    is_mandatory: true
+    name: Name
+    type: string
+-   default_value: ''
+    description: The zone to assign the rule to.
+    is_mandatory: true
+    name: RP Zone
+    type: string
+-   default_value: ''
+    description: Specify the mail exchanger for the rule.
+    is_mandatory: true
+    name: Mail Exchanger
+    type: string
+-   default_value: '0'
+    description: Preference value for the rule.
+    is_mandatory: true
+    name: Preference
+    type: string
+-   description: Comment for this rule.
+    is_mandatory: false
+    name: Comment
+    type: string
+-   description: JSON object containing additional parameters to create response policy
+        zone.
+    is_mandatory: false
+    name: Additional Parameters
+    type: string
+script_result_name: ScriptResult

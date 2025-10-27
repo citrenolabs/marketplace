@@ -16,11 +16,16 @@
 
 from __future__ import annotations
 
+import os
+import platform
 import re
 import sys
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from mp.core.constants import WINDOWS_PLATFORM
+
+if TYPE_CHECKING:
+    from .custom_types import RepositoryType
 
 SNAKE_PATTERN_1 = re.compile(r"(.)([A-Z][a-z]+)")
 SNAKE_PATTERN_2 = re.compile(r"([a-z0-9])([A-Z])")
@@ -115,3 +120,81 @@ def is_windows() -> bool:
 
     """
     return sys.platform.startswith(WINDOWS_PLATFORM)
+
+
+def ensure_valid_list(value: list[str] | list[RepositoryType] | type) -> list:
+    """Ensure that the input is a valid list.
+
+    This function checks whether the given value is a valid list. If the value is
+    the `type` object (e.g., `<class 'list'>`), which can happen in github actions.
+    it returns an empty list Otherwise, it returns the value as-is.
+
+    Args:
+        value (list[str] | list[RepositoryType] | type): The value to validate.
+
+    Returns:
+        list: A valid list object. Returns an empty list if the input was of type `type`.
+
+    """
+    if isinstance(value, type):
+        return []
+    return value
+
+
+def is_github_actions() -> bool:
+    """Determine if the current environment is GitHub Actions.
+
+    Returns:
+        bool: True if the code is running inside a GitHub Actions workflow,
+              False otherwise.
+
+    """
+    return os.getenv("GITHUB_ACTIONS") == "true"
+
+
+def is_louhi() -> bool:
+    """Determine if the current environment is running in the context of louhi flow.
+
+    Returns:
+        bool: True if the code is running inside louhi,
+              False otherwise.
+
+    """
+    return any(key.startswith("_LOUHI_") for key in os.environ)
+
+
+def is_ci_cd() -> bool:
+    """Determine if the current environment is running in the context of CI CD.
+
+    Returns:
+        bool: True if the code is running inside in the context of CI CD,
+              False otherwise.
+
+    """
+    return is_github_actions() or is_louhi()
+
+
+def get_current_platform() -> tuple[str, str]:
+    """Get the simplified operating system name and its version.
+
+    Returns:
+       A tuple containing two strings:
+       1. The simplified OS name ('macOS', 'Windows', 'Linux').
+       2. The OS's primary version string (e.g., '14.5', '11').
+
+    """
+    system_name: str = platform.system()
+    os_name: str = "Unknown"
+    version: str = "Unknown"
+
+    if system_name == "Darwin":
+        os_name = "macOS"
+        version = platform.mac_ver()[0]
+    elif system_name == "Windows":
+        os_name = "Windows"
+        version = platform.release()
+    elif system_name == "Linux":
+        os_name = "Linux"
+        version = platform.release()
+
+    return os_name, version

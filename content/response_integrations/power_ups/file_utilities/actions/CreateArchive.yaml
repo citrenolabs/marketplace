@@ -1,0 +1,36 @@
+creator: Rob
+default_result_value: ''
+description: 'Creates an archive file from a list of provided files or a directories.  Supports:
+    zip, tar, gztar, bztar, xtar.
+
+    Returns the location of the archive file.'
+dynamic_results_metadata:
+-   result_example_path: resources/CreateArchive_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: FileUtilities
+name: Create Archive
+parameters:
+-   default_value: zip
+    description: "The type of archive to create.  \n\nSupports: \nzip,\nuncompressed\
+        \ tar-file\ngzip'ed tar-file\nbzip2'ed tar-file\nxz'ed tar-file"
+    is_mandatory: true
+    name: Archive Type
+    optional_values:
+    - zip
+    - tar
+    - gztar
+    - bztar
+    - xztar
+    type: ddl
+-   default_value: <filename>
+    description: The name of the archive file that will be created without the extension.
+    is_mandatory: true
+    name: Archive Base Name
+    type: string
+-   default_value: <archive input>
+    description: Either a comma delimited list of files or a directory path.
+    is_mandatory: true
+    name: Archive Input
+    type: string
+script_result_name: ScriptResult

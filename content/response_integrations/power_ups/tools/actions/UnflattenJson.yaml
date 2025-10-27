@@ -1,0 +1,22 @@
+creator: Siemplify Admin
+default_result_value: ''
+description: Unflatten a JSON.
+dynamic_results_metadata:
+-   result_example_path: resources/UnflattenJson_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Tools
+name: Unflatten JSON
+parameters:
+-   default_value: ''
+    description: Specify a JSON object that needs to be unflattened
+    is_mandatory: true
+    name: JSON Object
+    type: string
+-   default_value: _
+    description: The flattening delimiter used to chain keys with nested values, and
+        should be used to split the keys' names. Leaving empty will separate keys
+        by every value that is not a letter, number or underscore.
+    is_mandatory: false
+    name: Delimiter
+    type: string

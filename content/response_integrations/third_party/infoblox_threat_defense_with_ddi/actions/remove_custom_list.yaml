@@ -1,0 +1,16 @@
+creator: Admin
+default_result_value: ''
+description: Deletes a specified custom list from the system.
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: InfobloxThreatDefenseWithDDI
+name: Remove Custom List
+parameters:
+-   default_value: '0'
+    description: Specify the ID of the custom list to remove.
+    is_mandatory: true
+    name: Custom List ID
+    type: string
+script_result_name: ScriptResult

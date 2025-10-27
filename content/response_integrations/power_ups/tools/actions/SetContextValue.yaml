@@ -1,0 +1,30 @@
+creator: Robert
+default_result_value: ''
+description: The action sets a key and value in a specific context (alert or case)
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Tools
+name: Set Context Value
+parameters:
+-   default_value: Value
+    description: Value
+    is_mandatory: true
+    name: Value
+    type: string
+-   default_value: Key
+    description: Key
+    is_mandatory: true
+    name: Key
+    type: string
+-   default_value: Alert
+    description: Alert or Case or Global
+    is_mandatory: true
+    name: Scope
+    optional_values:
+    - Case
+    - Alert
+    - Global
+    type: ddl
+script_result_name: ScriptResult

@@ -1,0 +1,11 @@
+creator: shakedalontest
+default_result_value: ''
+description: Tests connectivity to the product.
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: false
+integration_identifier: Webhook
+name: Ping
+parameters: []
+script_result_name: ScriptResult

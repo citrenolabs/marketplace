@@ -1,0 +1,10 @@
+creator: daniel.harvey
+description: ''
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: false
+integration_identifier: Bitdefender GravityZone
+name: Ping
+parameters: []
+script_result_name: is_connected

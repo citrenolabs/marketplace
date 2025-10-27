@@ -1,0 +1,44 @@
+creator: community
+default_result_value: ''
+description: 'Fetch data of requests for the URL: {Base URL}/{Token ID}'
+dynamic_results_metadata:
+-   result_example_path: resources/GetWebhookResponse_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Webhook
+is_async: true
+name: Get Webhook Response
+parameters:
+-   default_value: TimeFrame
+    description: 'TimeFrame - Choose the custom timeout condition.
+
+        AwaitClick - Wait for first click before ending script.'
+    is_mandatory: true
+    name: Pending Condition
+    optional_values:
+    - AwaitClick
+    - TimeFrame
+    type: ddl
+-   default_value: '5'
+    description: 'Minutes to wait for requests for URL (by token ID), before ending
+        the action.
+
+        Relevant only if "Timeout" is chosen as parameter.'
+    is_mandatory: true
+    name: TimeFrame
+    type: string
+-   default_value: All
+    description: Choose All to retrieve all responses data, or Latest to retrieve
+        only the latest responses data.
+    is_mandatory: true
+    name: Responses To Retrieve
+    optional_values:
+    - Latest
+    - All
+    type: ddl
+-   default_value: '111'
+    description: The ID of the token to read requests for
+    is_mandatory: true
+    name: Token ID
+    type: string
+script_result_name: ScriptResult

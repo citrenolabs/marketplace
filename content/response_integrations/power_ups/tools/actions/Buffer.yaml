@@ -1,0 +1,19 @@
+creator: Robert
+default_result_value: ''
+description: The action receives a json and returns it as a json result
+dynamic_results_metadata:
+-   result_example_path: resources/Buffer_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Tools
+name: Buffer
+parameters:
+-   description: Result Value input
+    is_mandatory: false
+    name: ResultValue
+    type: string
+-   description: JSON input
+    is_mandatory: false
+    name: JSON
+    type: string
+script_result_name: ScriptResult

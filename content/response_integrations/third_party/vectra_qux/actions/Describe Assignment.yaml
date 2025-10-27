@@ -1,0 +1,16 @@
+creator: Admin
+default_result_value: ''
+description: Show all the details of an assignment for the given ID.
+dynamic_results_metadata:
+-   result_example_path: resources/Describe Assignment_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: VectraQUX
+name: 'Describe Assignment    '
+parameters:
+-   default_value: '0'
+    description: Unique assignment ID to get assignment
+    is_mandatory: true
+    name: Assignment ID
+    type: string
+script_result_name: ScriptResult

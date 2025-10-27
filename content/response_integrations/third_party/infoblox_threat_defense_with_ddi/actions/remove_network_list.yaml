@@ -1,0 +1,16 @@
+creator: Admin
+default_result_value: ''
+description: Remove an existing network list from the environment
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: InfobloxThreatDefenseWithDDI
+name: Remove Network List
+parameters:
+-   default_value: '0'
+    description: Specify the ID of the network list to remove.
+    is_mandatory: true
+    name: Network List ID
+    type: string
+script_result_name: ScriptResult

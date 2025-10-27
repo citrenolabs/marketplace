@@ -1,0 +1,21 @@
+creator: Yoav Tal
+default_result_value: ''
+description: 'Get the domain details and present them as a Json result '
+dynamic_results_metadata:
+-   result_example_path: resources/GetDomainDetails_JsonResult_example.json
+    result_name: JsonResult
+    show_result: true
+integration_identifier: WHOIS XML API
+name: Get Domain Details
+parameters:
+-   default_value: google.com
+    description: The domain to scan
+    is_mandatory: true
+    name: Domain Name
+    type: string
+-   default_value: 'false'
+    description: Check availability
+    is_mandatory: false
+    name: Check availability
+    type: boolean
+script_result_name: ScriptResult

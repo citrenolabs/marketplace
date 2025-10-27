@@ -1,0 +1,22 @@
+creator: daniel.harvey
+default_result_value: ''
+description: 'Use this method to add one or more file hashes to the Blocklist. Hashes
+    supported: SHA256, MD5.'
+dynamic_results_metadata:
+-   result_example_path: resources/BlocklistAddHashes_JsonResult_example.json
+    result_name: JsonResult
+    show_result: false
+integration_identifier: Bitdefender GravityZone
+name: Blocklist - Add Hashes
+parameters:
+-   default_value: hash1,hash2
+    description: A comma-separated list of SHA256 or MD5 hashes.
+    is_mandatory: true
+    name: Hash List
+    type: string
+-   default_value: Determined to be malicious.
+    description: A description for the hashes.
+    is_mandatory: true
+    name: Source Info
+    type: string
+script_result_name: ScriptResult

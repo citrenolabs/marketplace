@@ -81,17 +81,17 @@ def assert_build_integration(
     built_integration: pathlib.Path,
 ) -> Callable[[pathlib.Path], None]:
     def wrapper(integration_path: pathlib.Path) -> None:
-        commercial: pathlib.Path = tmp_path / built_integration.parent.name
-        shutil.copytree(integration_path.parent, commercial)
-        integration: pathlib.Path = commercial / built_integration.name
+        community: pathlib.Path = tmp_path / mp.core.constants.COMMUNITY_DIR_NAME
+        shutil.copytree(integration_path.parent, community)
+        integration: pathlib.Path = community / built_integration.name
         py_version: pathlib.Path = integration / mp.core.constants.PYTHON_VERSION_FILE
         if integration.exists():
             py_version.write_text("3.11", encoding="utf-8")
 
-        marketplace: Marketplace = mp.build_project.marketplace.Marketplace(commercial)
+        marketplace: Marketplace = mp.build_project.marketplace.Marketplace(community)
         marketplace.build_integration(integration)
 
-        out_integration: pathlib.Path = marketplace.out_path / integration.name
+        out_integration: pathlib.Path = marketplace.out_dir / integration.name
         out_py_version: pathlib.Path = out_integration / mp.core.constants.PYTHON_VERSION_FILE
         out_py_version.unlink(missing_ok=True)
 

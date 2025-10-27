@@ -1,0 +1,21 @@
+creator: Admin
+default_result_value: ''
+description: ''
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Cybersixgill Actionable Alerts
+name: Ping
+parameters:
+-   default_value: clientid
+    description: Client Id
+    is_mandatory: true
+    name: Client Id
+    type: password
+-   default_value: secretkey
+    description: Client Secret
+    is_mandatory: true
+    name: Client Secret
+    type: password
+script_result_name: ScriptResult

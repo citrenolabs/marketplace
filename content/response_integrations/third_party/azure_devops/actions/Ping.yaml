@@ -1,0 +1,11 @@
+creator: community-automation
+default_result_value: ''
+description: Test Connectivity with Azure Devops
+dynamic_results_metadata:
+-   result_example_path: null
+    result_name: JsonResult
+    show_result: true
+integration_identifier: Azure DevOps
+name: Ping
+parameters: []
+script_result_name: ScriptResult
