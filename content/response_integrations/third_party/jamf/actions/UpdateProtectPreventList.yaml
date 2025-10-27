@@ -36,17 +36,7 @@ parameters:
     description: Prevent List Tags (comma-separated list of tags)
     default_value: ""
 dynamic_results_metadata:
-  - result_name: JsonResult
+-   result_example_path: resources/UpdateProtectPreventList_JsonResult_example.json
+    result_name: JsonResult
     show_result: true
-    result_example: |
-      {
-        "status": "success",
-        "prevent_list": {
-          "id":"1",
-          "name":"Prevent List Name",
-          "description":"Prevent List Description",
-          "type":"FILEHASH",
-          "list":["filehash1","filehash2"],
-          "tags":["Tag1","Tag2"]
-        }
-      }
+    

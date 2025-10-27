@@ -21,22 +21,7 @@ parameters:
     is_mandatory: false
     default_value: ""
 dynamic_results_metadata:
-  - result_name: JsonResult
+-   result_example_path: resources/RemoteLockMobileDevice_JsonResult_example.json
+    result_name: JsonResult
     show_result: true
-    result_example: |
-      {
-        "lock_command_result": [
-          {
-            "id": "1",
-            "href": "https://yourJamfProUrl.jamf/api/v1/resource/1"
-          }
-        ],
-        "command_details": {
-          "mobile_device_id": "12345",
-          "command_type": "device_lock",
-          "message_used": true,
-          "phone_number_used": true,
-          "timestamp": 1641234567,
-          "status": "initiated"
-        }
-      }
+    
