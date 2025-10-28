@@ -80,27 +80,27 @@
   integration_version: 2.0
   item_name: Get Mobile Device Inventory
   item_type: Action
-  publish_time: '2025-09-17'
+  publish_time: '2025-10-27'
   ticket_number: xxx
   new: true
 - description: NEW! Remote Lock Mobile Device action for remotely locking managed mobile devices in Jamf Pro.
   integration_version: 2.0
   item_name: Remote Lock Mobile Device
   item_type: Action
-  publish_time: '2025-09-17'
+  publish_time: '2025-10-27'
   ticket_number: xxx
   new: true
 - description: NEW! Wipe Mobile Device action for wiping managed mobile devices in Jamf Pro.
   integration_version: 2.0
   item_name: Wipe Mobile Device
   item_type: Action
-  publish_time: '2025-09-17'
+  publish_time: '2025-10-27'
   ticket_number: xxx
   new: true
 - description: NEW! Update Protect Prevent List action for updating prevent lists in Jamf Protect.
   integration_version: 2.0
   item_name: Update Protect Prevent List
   item_type: Action
-  publish_time: '2025-10-03'
+  publish_time: '2025-10-27'
   ticket_number: ''
   new: true
