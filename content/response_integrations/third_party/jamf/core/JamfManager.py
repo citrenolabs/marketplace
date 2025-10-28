@@ -94,7 +94,6 @@ class JamfManager:
             self._log("info", f"Getting access token from Jamf Pro at: {auth_url}")
             self._log("info", f"Authenticating with Jamf Pro at: {auth_url}")
             self._log("info", f"Client API ID: {self.client_api_id}")
-            self._log("info", f"Client API Secret: {self.client_api_secret}")
 
             response = self.session.post(auth_url, headers=headers, data=data, timeout=30)
 
@@ -245,9 +244,7 @@ class JamfManager:
 
             if response.status_code == 200:
                 groups_data = response.json()
-                self._log("info", f"Raw API response type: {type(groups_data)}")
-                self._log("info", f"Raw API response: {groups_data}")
-
+                
                 # Handle both possible response formats
                 if isinstance(groups_data, list):
                     # API returns a direct list of groups
@@ -589,7 +586,7 @@ class JamfManager:
                 raise JamfInvalidParameterError(f"Bad request: {error_msg}")
             else:
                 error_msg = (
-                    f"Failed to erase computer. Status: {response.status_code}, "
+                    f"Status: {response.status_code}, "
                     f"Response: {response.text}"
                 )
                 self._log("error", error_msg)
@@ -685,8 +682,6 @@ class JamfManager:
             self._log("info", f"Request body: {request_body}")
 
             response = self.session.post(url, headers=headers, json=request_body, timeout=30)
-            self._log("info", f"Response status code: {response.status_code}")
-            self._log("info", f"Response body: {response.text}")
 
             if response.status_code == 201:
                 try:
@@ -1151,7 +1146,6 @@ class JamfManager:
                 continue
 
             if char == "\\":
-                self._log("info", f"Escaping backslash: {json_string[i + 1]}")
                 # Check specifically for \, sequences
                 if i + 1 < len(json_string) and json_string[i + 1] == ",":
                     # Convert \, to \\, for valid JSON
@@ -1380,7 +1374,7 @@ class JamfManager:
             else:
                 self._log("error", f"Unexpected response status: {response.status_code}")
                 self._log("error", f"Response content: {response.text}")
-                error_msg = f"Failed to send remote lock command. Status: {response.status_code}"
+                error_msg = f"Status: {response.status_code}"
                 raise Exception(error_msg)
         except Exception as e:
             self._log("error", f"Error sending remote lock command to mobile device: {e}")

@@ -122,6 +122,7 @@ class JamfProtectManager:
         """
         try:
             # Ensure we have a valid token
+            self._log("info", "Testing connectivity to Jamf Protect API")
             self.check_token_expiration()
             return True
 
