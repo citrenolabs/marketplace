@@ -244,7 +244,7 @@ class JamfManager:
 
             if response.status_code == 200:
                 groups_data = response.json()
-                
+
                 # Handle both possible response formats
                 if isinstance(groups_data, list):
                     # API returns a direct list of groups
@@ -585,10 +585,7 @@ class JamfManager:
                 self._log("error", f"Bad request: {error_msg}")
                 raise JamfInvalidParameterError(f"Bad request: {error_msg}")
             else:
-                error_msg = (
-                    f"Status: {response.status_code}, "
-                    f"Response: {response.text}"
-                )
+                error_msg = f"Status: {response.status_code}, Response: {response.text}"
                 self._log("error", error_msg)
                 raise JamfError(error_msg)
 
