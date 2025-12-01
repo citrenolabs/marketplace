@@ -24,7 +24,6 @@ INTEGRATIONS_DIR_NAME: str = "response_integrations"
 COMMUNITY_DIR_NAME: str = "third_party"
 COMMERCIAL_DIR_NAME: str = "commercial"
 POWERUPS_DIR_NAME: str = "power_ups"
-PLAYBOOKS_DIR_NAME: str = "playbooks"
 INTEGRATIONS_DIRS_NAMES_DICT: dict[str, tuple[str, ...]] = {
     COMMUNITY_DIR_NAME: (
         COMMUNITY_DIR_NAME,
@@ -87,10 +86,6 @@ RELEASE_NOTES_FILE: str = f"release_notes{DEF_FILE_SUFFIX}"
 IMAGE_FILE: str = f"image{IMAGE_FILE_SUFFIX}"
 LOGO_FILE: str = f"logo{SVG_FILE_SUFFIX}"
 SDK_PACKAGE_NAME: str = "soar_sdk"
-TRIGGERS_FILE_NAME: str = f"triggers{DEF_FILE_SUFFIX}"
-DISPLAY_INFO_FILE_MAME: str = f"display_info{DEF_FILE_SUFFIX}"
-OVERVIEWS_FILE_NAME: str = "overviews.yaml"
-STEPS_DIR: str = "steps"
 
 SAFE_TO_IGNORE_PACKAGES: tuple[str, ...] = ("win-unicode-console",)
 SAFE_TO_IGNORE_ERROR_MESSAGES: tuple[str, ...] = (
@@ -230,11 +225,11 @@ EXCLUDED_PARAM_NAMES_WITH_TOO_MANY_WORDS: set[str] = {
     "Use document ID as ID in Arcanna",
 }
 LONG_DESCRIPTION_MAX_LENGTH: int = 2_200
-SHORT_DESCRIPTION_MAX_LENGTH: int = 400
+SHORT_DESCRIPTION_MAX_LENGTH: int = 2050
 DISPLAY_NAME_MAX_LENGTH: int = 150
 MAX_PARAMETERS_LENGTH: int = 50
-PARAM_NAME_MAX_LENGTH: int = 63
-PARAM_NAME_MAX_WORDS: int = 5
+PARAM_NAME_MAX_LENGTH: int = 150
+PARAM_NAME_MAX_WORDS: int = 7
 MINIMUM_SCRIPT_VERSION: float = 1.0
 # language=regexp
 SCRIPT_DISPLAY_NAME_REGEX: str = (
@@ -314,3 +309,16 @@ PARAM_DISPLAY_NAME_REGEX: str = (
 )
 
 WINDOWS_PLATFORM: str = "win32"
+
+
+PLAYBOOKS_DIR_NAME: str = "playbooks"
+
+TRIGGER_FILE_NAME: str = f"trigger{DEF_FILE_SUFFIX}"
+DISPLAY_INFO_FILE_MAME: str = f"display_info{DEF_FILE_SUFFIX}"
+OVERVIEWS_FILE_NAME: str = "overviews.yaml"
+STEPS_DIR: str = "steps"
+
+
+MAX_STEP_PARALLEL_ACTIONS: int = 5
+CONDITION_FIELD_NAME_MIN_LENGTH: int = 1
+NAME_VALIDATION_REGEX: str = r"^[^!@#$%^&*()+=\[\]{};'\\\":~`|,.<>/?]*$"
